@@ -40,8 +40,8 @@ class Main(object):
         basepath = os.path.dirname(files_to_load)
         if os.path.isdir(files_to_load):
             files = []
-            for i in os.listdir(files_to_load):
-                files = os.path.join(basepath, i)
+            for i in os.listdir(files_to_load): 
+                files.append(os.path.join(basepath, i))
         else:
             files = [files_to_load]
 
