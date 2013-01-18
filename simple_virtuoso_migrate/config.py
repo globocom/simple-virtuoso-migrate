@@ -1,6 +1,7 @@
 import os
 from helpers import Utils
 
+
 class Config(object):
 
     def __init__(self, inital_config=None):
@@ -11,7 +12,8 @@ class Config(object):
     def __repr__(self):
         return str(self._config)
 
-    #default_value was assigned as !@#$%&* to be more easy to check when the default value is None, empty string or False
+    #default_value was assigned as !@#$%&* to be more easy to check when the
+    #default value is None, empty string or False
     def get(self, config_key, default_value='!@#$%&*'):
         """ Get config_key value """
         config_key = config_key.lower()
@@ -21,7 +23,8 @@ class Config(object):
         """ Put config_key in config file if it is not there  """
         config_key = config_key.lower()
         if config_key in self._config:
-            raise Exception("the configuration key '%s' already exists and you cannot override any configuration" % config_key)
+            raise Exception("the configuration key '%s' already exists and you\
+                            cannot override any configuration" % config_key)
         self._config[config_key] = config_value
 
     def update(self, config_key, config_value):
@@ -40,7 +43,8 @@ class Config(object):
         except KeyError:
             raise Exception("invalid configuration key ('%s')" % config_key)
 
-    #default_value was assigned as !@#$%&* to be more easy to check when the default value is None, empty string or False
+    #default_value was assigned as !@#$%&* to be more easy to check when the
+    #default value is None, empty string or False
     @staticmethod
     def _get(_dict, key, default_value='!@#$%&*'):
         try:
@@ -63,10 +67,12 @@ class Config(object):
                 abs_dirs.append(os.path.abspath('%s/%s' % (config_dir, _dir)))
         return abs_dirs
 
+
 class FileConfig(Config):
     """ Interprete config file """
 
-    def __init__(self, config_file="simple-virtuoso-migrate.conf", environment=''):
+    def __init__(self, config_file="simple-virtuoso-migrate.conf",
+                                                            environment=''):
         # read configuration
         settings = Utils.get_variables_from_file(config_file)
 
@@ -81,4 +87,6 @@ class FileConfig(Config):
         migrations_dir = self.get("database_migrations_dir", None)
         if migrations_dir:
             config_dir = os.path.split(config_file)[0]
-            self.update("database_migrations_dir", FileConfig._parse_migrations_dir(migrations_dir, config_dir))
+            self.update("database_migrations_dir",
+                        FileConfig._parse_migrations_dir(migrations_dir,
+                                                         config_dir))

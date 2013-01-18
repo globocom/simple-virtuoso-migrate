@@ -1,6 +1,7 @@
 import os
 from git import Git, Repo, NoSuchPathError, InvalidGitRepositoryError
 
+
 class SimpleVirtuosoMigrate(object):
 
     def __init__(self, config):
@@ -18,9 +19,11 @@ class SimpleVirtuosoMigrate(object):
             for git_tag in repo.tags:
                 migrations.append(git_tag.name)
         except NoSuchPathError:
-            raise Exception("directory not found ('%s')" % self._migrations_dir)
+            raise Exception("directory not found ('%s')" %
+                                                self._migrations_dir)
         except InvalidGitRepositoryError:
-            raise Exception("invalid git repository ('%s')" % self._migrations_dir)
+            raise Exception("invalid git repository ('%s')" %
+                                                 self._migrations_dir)
 
         if len(migrations) == 0:
             raise Exception("no migration found")
@@ -32,4 +35,7 @@ class SimpleVirtuosoMigrate(object):
         return version in self.get_all_migrations()
 
     def latest_version_available(self):
-        return Git(self._migrations_dir).execute(["git", "describe","--abbrev=0","--tags"])
+        return Git(self._migrations_dir).execute(["git",
+                                                  "describe",
+                                                  "--abbrev=0",
+                                                  "--tags"])

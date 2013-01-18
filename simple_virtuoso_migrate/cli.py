@@ -1,9 +1,10 @@
 from optparse import OptionParser, make_option
 import sys
 
+
 class CLI(object):
-    """Parse parameters passed by command line options when the user calls virtuoso-migrate.
-       Uses external module optparse"""
+    """Parse parameters passed by command line options when
+        the user calls virtuoso-migrate. Uses external module optparse"""
 
     color = {
         "PINK": "",
@@ -44,12 +45,15 @@ class CLI(object):
         make_option("-c", "--config",
                 dest="config_file",
                 default=None,
-                help="Use a specific config file. If not provided, will search for 'simple-virtuoso-migrate.conf' in the current directory."),
+                help="Use a specific config file. If not provided, will search\
+                     for 'simple-virtuoso-migrate.conf'\
+                     in the current directory."),
 
         make_option("-l", "--log-level",
                 dest="log_level",
                 default=1,
-                help="Log level: 0-no log; 1-migrations log; 2-statement execution log (default: %default)"),
+                help="Log level: 0-no log; 1-migrations log; 2-statement\
+                      execution log (default: %default)"),
 
         make_option("--log-dir",
                 dest="log_dir",
@@ -59,7 +63,8 @@ class CLI(object):
         make_option("-g", "--git",
                 dest="schema_version",
                 default=None,
-                help="Git tag version to migrate to. If not provided will raise an exception."),
+                help="Git tag version to migrate to. If not provided will\
+                      raise an exception."),
 
         make_option("-f", "--file",
                 dest="file_migration",
@@ -92,7 +97,8 @@ class CLI(object):
                 action="store_true",
                 dest="show_sparql_only",
                 default=False,
-                help="Show all SQL statements that would be executed but DON'T execute them in the virtuoso."),
+                help="Show all SQL statements that would be executed but\
+                      DON'T execute them in the virtuoso."),
 
         make_option("--env", "--environment",
                 dest="environment",
@@ -147,7 +153,8 @@ class CLI(object):
         make_option("--db-migrations-dir",
                 dest="database_migrations_dir",
                 default=None,
-                help="List of directories where migrations are separated by a colon"),
+                help="List of directories where migrations are separated by a\
+                      colon")
         )
 
     @classmethod

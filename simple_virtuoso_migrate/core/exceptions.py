@@ -4,10 +4,9 @@ class MigrationException(Exception):
         if not msg:
             self.msg = 'error executing migration'
         self.sql = sql
-        
+
     def __str__(self):
         if self.sql:
             self.details = '[ERROR DETAILS] SQL command was:\n%s' % self.sql
             return '%s\n\n%s' % (self.msg, self.details)
-    
         return self.msg

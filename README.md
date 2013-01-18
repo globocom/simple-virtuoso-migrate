@@ -28,7 +28,7 @@ A little explanation about load options :
    -g  <version>   Use this option to evolve your ontology. Inform target version of the ontology based on your git tag. As a result it compares the current version of your ontology with the one in the target version.      
                    with this option the current version of current.  If you do not inform a load parameter  
           
-    $ virtuoso-migrate -c /projects/confs/vm_sde_dev.cnf -g 2.0.0
+    $ virtuoso-migrate -c /projects/confs/confg.cnf -g 2.0.0
 
    -i <file_name>  Use this option when you want to load data into your graph. 
                    It loads the content of a given file into the database without any verification.

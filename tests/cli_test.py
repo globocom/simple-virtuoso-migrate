@@ -1,7 +1,7 @@
-import unittest
-from mock import patch
 from StringIO import StringIO
+from mock import patch
 from simple_virtuoso_migrate.cli import CLI
+import unittest
 
 class CLITest(unittest.TestCase):
 

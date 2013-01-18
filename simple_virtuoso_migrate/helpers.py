@@ -3,6 +3,7 @@ import sys
 import tempfile
 import codecs
 
+
 class Utils(object):
 
     @staticmethod
@@ -16,7 +17,8 @@ class Utils(object):
             fh.close()
             return f.name
         except IOError, e:
-            raise Exception("could not create temporary file for %s -> (%s)" % (content_reference, e))
+            raise Exception("could not create temporary file for %s -> (%s)" %
+                                                        (content_reference, e))
 
     @staticmethod
     def get_variables_from_file(full_filename, file_encoding='utf-8'):
@@ -39,14 +41,16 @@ class Utils(object):
                 content = f.read()
                 f.close()
 
-                temp_abspath = "%s/%s" %(tempfile.gettempdir().rstrip('/'), filename)
+                temp_abspath = "%s/%s" % (tempfile.gettempdir().rstrip('/'),
+                                          filename)
                 f = open(temp_abspath, "w")
                 f.write('#-*- coding:%s -*-\n%s' % (file_encoding, content))
                 f.close()
 
                 execfile(temp_abspath, global_dict, local_dict)
             except Exception, e:
-                raise Exception("error interpreting config file '%s': %s" % (filename, str(e)))
+                raise Exception("error interpreting config file '%s': %s" %
+                                                            (filename, str(e)))
         finally:
             #erase temp and compiled files
             if temp_abspath and os.path.isfile(temp_abspath):
