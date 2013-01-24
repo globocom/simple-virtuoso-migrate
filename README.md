@@ -34,37 +34,29 @@ A little explanation about load options:
 
 Example:
 
-    ```bash
-        virtuoso-migrate -c /projects/confs/confg.cnf -g 2.0.0
-    ```
-
-Example:
+```bash
+virtuoso-migrate -c /projects/confs/confg.cnf -g 2.0.0
+```
 
     -i <file_name>  Use this option when you want to load data into your graph.
                     It loads the content of a given file into the database without any verification.
 
-Example:
-
 ```bash
-    $ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl
+$ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl
 ```
 
-   --showsparql    Use this option to make Virtuoso-migrate show all the comands that
+    --showsparql    Use this option to make Virtuoso-migrate show all the comands that
                    were executed on the database. It increases the output messages
 
-Example:
-
 ```bash
-    $ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl --showsparql
+$ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl --showsparql
 ```
 
-   --showsparqlonly Use this option to make Virtuoso-migrate show all the comands but without executing them.
+    --showsparqlonly Use this option to make Virtuoso-migrate show all the comands but without executing them.
                     It doesn't make any changes.
 
-Example:
-
 ```bash
-    $ virtuoso-migrate -c /projects/confs/loads.cnf -i /projects/dumps/loads.ttl --showsparqlonly
+$ virtuoso-migrate -c /projects/confs/loads.cnf -i /projects/dumps/loads.ttl --showsparqlonly
 ```
 
     If no load is specified it will migrate to the last version of your ontology.
