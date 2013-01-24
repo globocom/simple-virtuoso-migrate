@@ -72,7 +72,10 @@ $ virtuoso-migrate -c /projects/confs/loads.cnf -i /projects/dumps/loads.ttl --s
 
 Note: If no load is specified it will migrate to the last version of your ontology.
 
-## Configuration file parameters :
+Configuration file parameters
+-----
+
+One can easily configure file parameters simply by:
 
     DATABASE_HOST             Virtuoso instance host's name
     DATABASE_USER             Your database login name
@@ -87,12 +90,12 @@ Note: If no load is specified it will migrate to the last version of your ontolo
     DATABASE_ONTOLOGY         Ontology ttl file name.
 
 
-## Querying your migrations :
+Querying your migrations
+-----
 
-     Migration history is keeped on the graph <http://migration.example.com/> .
+Migration history is keeped on the graph <http://migration.example.com/> .
 
-
-     Data properties description  :
+Data properties description:
 
           owl#versionInfo	  Ontology version
           produto	          Product name (i.e, graph name) 
@@ -102,23 +105,24 @@ Note: If no load is specified it will migrate to the last version of your ontolo
           usuario	          Username used 
           ambiente	        Virtuoso instance name
 
-      Useful queries :
+Useful queries:
 
-      1. Listing all migrations performed on graph http://example.com/class/  during the period
-         between 30/06/2012 00:00:00 and 03/07/2012 00:00:00 :
+    Listing all migrations performed on graph http://example.com/class/ 
+    during the period between 30/06/2012 00:00:00 and 03/07/2012 00:00:00
 
 ```sql
-		PREFIX mig: <http://example.com/>
-		SELECT DISTINCT  ?source ?endpoint ?user ?env  ?when 
-			FROM <http://migration.example.com/> 
-				WHERE {?s  ?p ?o;
-					mig:produto   'http://example.com/class/';
-					mig:origen    ?source;
-					mig:commited  ?when;
-					mig:endpoint  ?endpoint;
-					mig:ambiente  ?env;
-					mig:usuario   ?user.
-				FILTER ( ?when > "2012-06-30T00:00:00"^^xsd:dateTime && 
-					 ?when < "2012-07-03T00:00:00"^^xsd:dateTime ).
-				}  ORDER BY ?when
+PREFIX mig: <http://example.com/>
+SELECT DISTINCT  ?source ?endpoint ?user ?env  ?when 
+	FROM <http://migration.example.com/> 
+		WHERE {?s  ?p ?o;
+			mig:produto   'http://example.com/class/';
+			mig:origen    ?source;
+			mig:commited  ?when;
+			mig:endpoint  ?endpoint;
+			mig:ambiente  ?env;
+			mig:usuario   ?user.
+		FILTER ( ?when > "2012-06-30T00:00:00"^^xsd:dateTime && 
+			 ?when < "2012-07-03T00:00:00"^^xsd:dateTime ).
+		}  ORDER BY ?when
 ```sql
+
