@@ -35,9 +35,13 @@ Example:
     $ virtuoso-migrate -c /projects/confs/confg.cnf -g 2.0.0
     ```
 
-Note: Inform target version of the ontology based on your git tag. As a result it
-compares the current version of your ontology with the one in the target destination
-with this option the current version of git. If you do not inform a load parameter:
+```python
+VALIDATE THIS TEXT
+```
+
+Note: Use this option to evolve your ontology. Inform target version of the ontology based on your git tag.
+As a result it compares the current version of your local ontology with the current version in the target repository.
+If you do not inform a load parameter:
 
     -i <file_name>  Use this option when you want to load data into your graph.
 
