@@ -30,22 +30,15 @@ The main difference between simple-db-migrate and this tool is that while simple
 
 A little explanation about load options:
 
-    -g  <version>   Use this option to evolve your ontology.
+    -g  <version>   Use this option to evolve your ontology. Inform the ontology version You want to go to.
+                    It will compare the current version of the ontology with the target one and infer the operations
+                    needed to equalize them.
 
 Example:
 
 ```bash
 $ virtuoso-migrate -c /projects/confs/confg.cnf -g 2.0.0
 ```
-
-```python
-def validate_this_paragraph:
-    pass
-```
-
-Note: Use this option to evolve your ontology. Inform target version of the ontology based on your git tag.
-As a result it compares the current version of your local ontology with the current version in the target repository.
-If you do not inform a load parameter:
 
     -i <file_name>  Use this option when you want to load data into your graph.
 
