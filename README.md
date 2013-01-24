@@ -101,13 +101,13 @@ Migration history is keeped on the graph <http://migration.example.com/>.
 
 Data properties description:
 
-          owl#versionInfo   Ontology version
-          produto           Product name (i.e, graph name)
-          origem            <-m / -i >
-          commited          When the migration was performed
-          endpoint          Sparql endpoint used
-          usuario           Username used
-          ambiente          Virtuoso instance name
+    owl#versionInfo   Ontology version
+    produto           Product name (i.e, graph name)
+    origem            <-m / -i >
+    commited          When the migration was performed
+    endpoint          Sparql endpoint used
+    usuario           Username used
+    ambiente          Virtuoso instance name
 
 Useful queries:
 ---
@@ -127,9 +127,9 @@ WHERE {
         mig:endpoint  ?endpoint;
         mig:ambiente  ?env;
         mig:usuario   ?user.
-        FILTER ( ?when > "2012-06-30T00:00:00"^^xsd:dateTime && 
-                 ?when < "2012-07-03T00:00:00"^^xsd:dateTime ).
-}  ORDER BY ?when
+    FILTER ( ?when > "2012-06-30T00:00:00"^^xsd:dateTime && 
+             ?when < "2012-07-03T00:00:00"^^xsd:dateTime ).
+} ORDER BY ?when
 ```
 
 That's it. Enjoy!
