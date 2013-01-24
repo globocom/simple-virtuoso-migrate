@@ -109,19 +109,22 @@ Useful queries:
 ---
 
 Listing all migrations performed on graph http://example.com/class/ 
-during the period between 30/06/2012 00:00:00 and 03/07/2012 00:00:00
+during the period between 2012-07-06 and 2012-07-03
 
 ```sql
 PREFIX mig: <http://example.com/>
-SELECT DISTINCT  ?source ?endpoint ?user ?env  ?when 
-	FROM <http://migration.example.com/> 
-		WHERE {?s  ?p ?o;
-			mig:produto   'http://example.com/class/';
-			mig:origen    ?source;
-			mig:commited  ?when;
-			mig:endpoint  ?endpoint;
-			mig:ambiente  ?env;
-			mig:usuario   ?user.
-		FILTER ( ?when > "2012-06-30T00:00:00"^^xsd:dateTime && 
-			 ?when < "2012-07-03T00:00:00"^^xsd:dateTime ).
+SELECT DISTINCT ?source ?endpoint ?user ?env ?when
+FROM <http://migration.example.com/>
+WHERE {
+    ?s  ?p            ?o;
+        mig:produto   'http://example.com/class/';
+        mig:origen    ?source;
+        mig:commited  ?when;
+        mig:endpoint  ?endpoint;
+        mig:ambiente  ?env;
+        mig:usuario   ?user.
+        FILTER ( ?when > "2012-06-30T00:00:00"^^xsd:dateTime && ?when < "2012-07-03T00:00:00"^^xsd:dateTime ).
 }  ORDER BY ?when
+```
+
+That's it. Enjoy!
