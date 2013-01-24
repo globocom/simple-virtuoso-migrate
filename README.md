@@ -125,5 +125,3 @@ SELECT DISTINCT  ?source ?endpoint ?user ?env  ?when
 		FILTER ( ?when > "2012-06-30T00:00:00"^^xsd:dateTime && 
 			 ?when < "2012-07-03T00:00:00"^^xsd:dateTime ).
 }  ORDER BY ?when
-```sql
-
