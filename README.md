@@ -31,12 +31,13 @@ A little explanation about load options:
 
 Example:
 
-    ```bash
-    $ virtuoso-migrate -c /projects/confs/confg.cnf -g 2.0.0
-    ```
+```bash
+$ virtuoso-migrate -c /projects/confs/confg.cnf -g 2.0.0
+```
 
 ```python
-VALIDATE THIS TEXT
+def validate_this_paragraph:
+    pass
 ```
 
 Note: Use this option to evolve your ontology. Inform target version of the ontology based on your git tag.
@@ -45,36 +46,40 @@ If you do not inform a load parameter:
 
     -i <file_name>  Use this option when you want to load data into your graph.
 
-    ```bash
-    $ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl
-    ```
+```bash
+$ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl
+```
 
 It loads the content of a given file into the database without any verification.
 
+Debugging a migration performed through the migration process:
 
-    --showsparql    Use this option to make Virtuoso-migrate show all the comands that
+    --showsparql   Use this option to make Virtuoso-migrate show all the commands that
                    were executed on the database. It increases the output messages
 
 ```bash
 $ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl --showsparql
 ```
 
-    --showsparqlonly Use this option to make Virtuoso-migrate show all the comands but without executing them.
-                    It doesn't make any changes.
+Showing SPARQL queries (similar as the above option) without executing them:
+
+    --showsparqlonly  Use this option to make simple-virtuoso-migrate show all the comands but without executing them.
+                      It doesn't make any changes.
 
 ```bash
 $ virtuoso-migrate -c /projects/confs/loads.cnf -i /projects/dumps/loads.ttl --showsparqlonly
 ```
 
-    If no load is specified it will migrate to the last version of your ontology.
+Note: If no load is specified it will migrate to the last version of your ontology.
 
 ## Configuration file parameters :
 
     DATABASE_HOST             Virtuoso instance host's name
     DATABASE_USER             Your database login name
     DATABASE_PASSWORD         Your database password.
-		              In some cases you will not want to write database passwords in the config files (e.g. production databases passwords).
-		              You can configure the password to be asked for you in the command line setting up this parameter with "<<ask_me>>".
+                              In some cases you will not want to write database passwords in the config files 
+                              (e.g. production databases passwords). You can configure the password to be asked 
+                              for you in the command line setting up this parameter with "<<ask_me>>".
     DATABASE_PORT             Virtuoso isql's port
     DATABASE_ENDPOINT         Sparql endpoit address . "http://localhost:8890/sparql"
     DATABASE_GRAPH            Graph name
@@ -102,7 +107,7 @@ $ virtuoso-migrate -c /projects/confs/loads.cnf -i /projects/dumps/loads.ttl --s
       1. Listing all migrations performed on graph http://example.com/class/  during the period
          between 30/06/2012 00:00:00 and 03/07/2012 00:00:00 :
 
-
+```sql
 		PREFIX mig: <http://example.com/>
 		SELECT DISTINCT  ?source ?endpoint ?user ?env  ?when 
 			FROM <http://migration.example.com/> 
@@ -116,3 +121,4 @@ $ virtuoso-migrate -c /projects/confs/loads.cnf -i /projects/dumps/loads.ttl --s
 				FILTER ( ?when > "2012-06-30T00:00:00"^^xsd:dateTime && 
 					 ?when < "2012-07-03T00:00:00"^^xsd:dateTime ).
 				}  ORDER BY ?when
+```sql
