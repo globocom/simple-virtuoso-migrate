@@ -53,7 +53,7 @@ If you do not inform a load parameter:
 $ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl
 ```
 
-It loads the content of a given file into the database without any verification.
+The command above loads the content of a given file into the database without any verification.
 
 Debugging a migration performed through the migration process:
 
