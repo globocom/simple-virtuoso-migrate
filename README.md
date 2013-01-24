@@ -60,11 +60,12 @@ Debugging a migration performed through the migration process:
     --showsparql   Use this option to make Virtuoso-migrate show all the commands that
                    were executed on the database. It increases the output messages
 
+Similarly, you can showing SPARQL queries without executing them:
+
 ```bash
 $ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl --showsparql
 ```
 
-Showing SPARQL queries (similar as the above option) without executing them:
 
     --showsparqlonly  Use this option to make simple-virtuoso-migrate show all the comands but without executing them.
                       It doesn't make any changes.
