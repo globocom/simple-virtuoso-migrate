@@ -113,7 +113,7 @@ Useful queries:
 ---
 
 Listing all migrations performed on graph http://example.com/class/ 
-during the period between 2012-07-06 and 2012-07-03
+during the period between 2012-06-30 and 2012-07-03 (using xsd:dateTime)
 
 ```sql
 PREFIX mig: <http://example.com/>
