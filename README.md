@@ -106,9 +106,10 @@ Data properties description:
           ambiente	        Virtuoso instance name
 
 Useful queries:
+---
 
-    Listing all migrations performed on graph http://example.com/class/ 
-    during the period between 30/06/2012 00:00:00 and 03/07/2012 00:00:00
+Listing all migrations performed on graph http://example.com/class/ 
+during the period between 30/06/2012 00:00:00 and 03/07/2012 00:00:00
 
 ```sql
 PREFIX mig: <http://example.com/>
@@ -123,6 +124,6 @@ SELECT DISTINCT  ?source ?endpoint ?user ?env  ?when
 			mig:usuario   ?user.
 		FILTER ( ?when > "2012-06-30T00:00:00"^^xsd:dateTime && 
 			 ?when < "2012-07-03T00:00:00"^^xsd:dateTime ).
-		}  ORDER BY ?when
+}  ORDER BY ?when
 ```sql
 
