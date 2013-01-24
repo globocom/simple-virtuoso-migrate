@@ -8,12 +8,13 @@ simple-virtuoso-migrate is damn simple. The best way to understand how it works 
 You can install it by :
 
 ```bash
-    $ pip install simple-virtuoso-migrate
+$ pip install simple-virtuoso-migrate
 ```
+
 Now, copy the file sitecustomize.py to Python library directory. After installing, for usage tips type:
 
 ```bash
-    $ virtuoso-migrate --help
+$ virtuoso-migrate --help
 ```
 
 ## Understanding how it works
@@ -24,28 +25,39 @@ This tool helps you to manage and track your ontology changes.
 
 The main difference between simple-db-migrate and this tool is that while simple-db-migrate uses multiple migrations files, virtuoso-migrate basically deals with versions (git tags) of one single ttl file. The migrations (i.e.,  actions to be performed) are inferred through the comparison of two versions of the ttl file.
 
-A little explanation about load options
+A little explanation about load options:
 
-   -g  <version>   Use this option to evolve your ontology. Inform target version of the ontology based on your git tag. As a result it compares the current version of your ontology with the one in the target version.
-                   with this option the current version of current.  If you do not inform a load parameter
+    -g  <version>   Use this option to evolve your ontology.
+                    Inform target version of the ontology based on your git tag. As a result it 
+                    compares the current version of your ontology with the one in the target version.
+                    with this option the current version of current.  If you do not inform a load parameter
 
-    $ virtuoso-migrate -c /projects/confs/confg.cnf -g 2.0.0
+    ```bash
+        virtuoso-migrate -c /projects/confs/confg.cnf -g 2.0.0
+    ```
 
-   -i <file_name>  Use this option when you want to load data into your graph.
-                   It loads the content of a given file into the database without any verification.
+    -i <file_name>  Use this option when you want to load data into your graph.
+                    It loads the content of a given file into the database without any verification.
 
-    $ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl
+    ```bash
+        $ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl
+    ```
 
+   --showsparql    Use this option to make Virtuoso-migrate show all the comands that
+                   were executed on the database. It increases the output messages
 
-  --showsparql    Use this option to make Virtuoso-migrate show all the comands that were executed on the database. It increases the output messages
+    ```bash
+        $ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl --showsparql
+    ```
 
-    $ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl --showsparql
+   --showsparqlonly Use this option to make Virtuoso-migrate show all the comands but without executing them.
+                    It doesn't make any changes.
 
-  --showsparqlonly Use this option to make Virtuoso-migrate show all the comands but without executing them. It doesn't make any changes.
+    ```bash
+        $ virtuoso-migrate -c /projects/confs/loads.cnf -i /projects/dumps/loads.ttl --showsparqlonly
+    ```
 
-    $ virtuoso-migrate -c /projects/confs/loads.cnf -i /projects/dumps/loads.ttl --showsparqlonly
-
-If no load is specified it will migrate to the last version of your ontology.
+    If no load is specified it will migrate to the last version of your ontology.
 
 ## Configuration file parameters :
 
