@@ -1,7 +1,9 @@
-# simple-virtuoso-migrate "quick" documentation 
+Simple Virtuoso migrate "quick" documentation
+======
 
 
-## Quick start
+Quick start
+---
 
 simple-virtuoso-migrate is damn simple. The best way to understand how it works is installing and using it.
 
@@ -17,7 +19,8 @@ Now, copy the file sitecustomize.py to Python library directory. After installin
 $ virtuoso-migrate --help
 ```
 
-## Understanding how it works
+Understanding how it works
+---
 
 virtuoso-migrate is a ontology versioning and migration tool inspired on simple-db-migrate.
 
@@ -123,7 +126,8 @@ WHERE {
         mig:endpoint  ?endpoint;
         mig:ambiente  ?env;
         mig:usuario   ?user.
-        FILTER ( ?when > "2012-06-30T00:00:00"^^xsd:dateTime && ?when < "2012-07-03T00:00:00"^^xsd:dateTime ).
+        FILTER ( ?when > "2012-06-30T00:00:00"^^xsd:dateTime && 
+                 ?when < "2012-07-03T00:00:00"^^xsd:dateTime ).
 }  ORDER BY ?when
 ```
 
