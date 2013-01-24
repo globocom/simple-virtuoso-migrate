@@ -32,12 +32,18 @@ A little explanation about load options:
                     compares the current version of your ontology with the one in the target version.
                     with this option the current version of current.  If you do not inform a load parameter
 
-```bash
-    virtuoso-migrate -c /projects/confs/confg.cnf -g 2.0.0
-```
+Example:
+
+    ```bash
+        virtuoso-migrate -c /projects/confs/confg.cnf -g 2.0.0
+    ```
+
+Example:
 
     -i <file_name>  Use this option when you want to load data into your graph.
                     It loads the content of a given file into the database without any verification.
+
+Example:
 
 ```bash
     $ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl
@@ -46,12 +52,16 @@ A little explanation about load options:
    --showsparql    Use this option to make Virtuoso-migrate show all the comands that
                    were executed on the database. It increases the output messages
 
+Example:
+
 ```bash
     $ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl --showsparql
 ```
 
    --showsparqlonly Use this option to make Virtuoso-migrate show all the comands but without executing them.
                     It doesn't make any changes.
+
+Example:
 
 ```bash
     $ virtuoso-migrate -c /projects/confs/loads.cnf -i /projects/dumps/loads.ttl --showsparqlonly
