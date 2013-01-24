@@ -93,17 +93,17 @@ One can easily configure file parameters simply by:
 Querying your migrations
 -----
 
-Migration history is keeped on the graph <http://migration.example.com/> .
+Migration history is keeped on the graph <http://migration.example.com/>.
 
 Data properties description:
 
-          owl#versionInfo	  Ontology version
-          produto	          Product name (i.e, graph name) 
+          owl#versionInfo   Ontology version
+          produto           Product name (i.e, graph name)
           origem            <-m / -i >
-          commited	        When the migration was performed 
-          endpoint          Sparql 	endpoint used 
-          usuario	          Username used 
-          ambiente	        Virtuoso instance name
+          commited          When the migration was performed
+          endpoint          Sparql endpoint used
+          usuario           Username used
+          ambiente          Virtuoso instance name
 
 Useful queries:
 ---
