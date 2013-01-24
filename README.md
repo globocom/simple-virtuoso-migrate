@@ -28,22 +28,25 @@ The main difference between simple-db-migrate and this tool is that while simple
 A little explanation about load options:
 
     -g  <version>   Use this option to evolve your ontology.
-                    Inform target version of the ontology based on your git tag. As a result it 
-                    compares the current version of your ontology with the one in the target version.
-                    with this option the current version of current.  If you do not inform a load parameter
 
 Example:
 
-```bash
-virtuoso-migrate -c /projects/confs/confg.cnf -g 2.0.0
-```
+    ```bash
+    $ virtuoso-migrate -c /projects/confs/confg.cnf -g 2.0.0
+    ```
+
+Note: Inform target version of the ontology based on your git tag. As a result it
+compares the current version of your ontology with the one in the target destination
+with this option the current version of git. If you do not inform a load parameter:
 
     -i <file_name>  Use this option when you want to load data into your graph.
-                    It loads the content of a given file into the database without any verification.
 
-```bash
-$ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl
-```
+    ```bash
+    $ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl
+    ```
+
+It loads the content of a given file into the database without any verification.
+
 
     --showsparql    Use this option to make Virtuoso-migrate show all the comands that
                    were executed on the database. It increases the output messages
