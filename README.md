@@ -40,7 +40,7 @@ Example:
 $ virtuoso-migrate -c /projects/confs/confg.cnf -g 2.0.0
 ```
 
-    -i <file_name>  Use this option when you want to load data into your graph.
+    -a <file_name>  Use this option when you want to load data into your graph in the form of a ttl file.
 
 ```bash
 $ virtuoso-migrate -c /projects/confs/config.cnf -i /projects/dumps/load.ttl
