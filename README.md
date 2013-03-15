@@ -72,7 +72,7 @@ Note: If no load is specified it will migrate to the last version of your ontolo
 Configuration file parameters
 -----
 
-One can easily configure file parameters simply by:
+You can create a configuration file and inform it at command line using "-c <file.conf>"  or you can just inform parameters directly ate command line. The options are:
 
     DATABASE_HOST             Virtuoso instance host's name
     DATABASE_USER             Your database login name
@@ -85,6 +85,8 @@ One can easily configure file parameters simply by:
     DATABASE_GRAPH            Graph name
     DATABASE_MIGRATIONS_DIR   Absolute path of the ontology ttl file.
     DATABASE_ONTOLOGY         Ontology ttl file name.
+    VIRTUOSO_DIRS_ALLOWED     This option exists to be used with "-a" option. It must be the same directory 
+                              configured for the Virtuoso Server in the parameter DirsAlowed of virtuoso.ini. 
 
 
 Querying your migrations
