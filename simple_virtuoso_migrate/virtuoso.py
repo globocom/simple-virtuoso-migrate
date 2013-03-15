@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from core.exceptions import MigrationException
 from git import Git
 from helpers import Utils
@@ -24,15 +26,14 @@ ISQL_SERVER = "select server_root();"
 class Virtuoso(object):
     """ Interact with Virtuoso Server"""
 
-    migration_graph = "http://example.com/"
-
     def __init__(self, config):
+        self.migration_graph = config.get("migration_graph")
         self.__virtuoso_host = config.get("database_host", '')
         self.__virtuoso_user = config.get("database_user")
         self.__virtuoso_passwd = config.get("database_password")
         self.__host_user = config.get("host_user")
         self.__host_passwd = config.get("host_password")
-        self.__virtuoso_dirs_allowed = config.get("virtuoso_dirs_allowed")
+        self.__virtuoso_dirs_allowed = config.get("virtuoso_dirs_allowed", None)
         self.__virtuoso_port = config.get("database_port")
         self.__virtuoso_endpoint = config.get("database_endpoint")
         self.__virtuoso_graph = config.get("database_graph")
@@ -40,32 +41,10 @@ class Virtuoso(object):
         self._migrations_dir = config.get("database_migrations_dir")
 
         if self.__virtuoso_dirs_allowed:
-            self._virtuoso_dir = self.__virtuoso_dirs_allowed
+            self._virtuoso_dir = os.path.realpath(self.__virtuoso_dirs_allowed)
         else:
             self._virtuoso_dir = self._run_isql(ISQL_SERVER)[0].split(
                                                                     '\n\n')[-2]
-
-    #def command_call(self, comando):
-    #    proc = subprocess.Popen(comando, shell=True, stdout=subprocess.PIPE,
-    #                            stderr=subprocess.PIPE)
-    #    stdout_value, stderr_value = proc.communicate()
-    #    return stdout_value, stderr_value
-#
-    #def connect(self):
-    #    """ Connect to virtuoso server """
-    #    # isql -U <user> -P <password> -H <hostname> -S <port> <
-    #    try:
-    #        conn = "isql -U %s -P %s -H %s -S %s < " % (self.__virtuoso_user,
-    #            self.__virtuoso_passwd,self.__virtuoso_host,
-    #                self.__virtuoso_port)
-    #        test = 'echo "status();"| ' + conn[:-2]
-    #        _, stderr_value = self.command_call(test)
-    #        if len(stderr_value) > 0:
-    #            raise Exception(stderr_value)
-    #        else:
-    #            return conn
-    #    except Exception as e:
-    #        raise Exception("could not connect to virtuoso: %s" % e)
 
     def _run_isql(self, cmd, archive=False):
         conn = ISQL % (self.__virtuoso_user,
@@ -89,8 +68,11 @@ class Virtuoso(object):
         _, fixture_file = os.path.split(ttl)
 
         if self._is_local() or self.__virtuoso_dirs_allowed:
-            shutil.copyfile(ttl,
-                            os.path.join(self._virtuoso_dir, fixture_file))
+            origin = os.path.realpath(ttl)
+            dest = os.path.realpath(os.path.join(self._virtuoso_dir,
+                                                 fixture_file))
+            if origin != dest:
+                shutil.copyfile(origin, dest)
         else:
             s = ssh.Connection(host=self.__virtuoso_host,
                                username=self.__host_user,
@@ -108,7 +90,7 @@ class Virtuoso(object):
 
     def _upload_single_ttl_to_virtuoso(self, fixture):
         fixture = self._copy_ttl_to_virtuoso_dir(fixture)
-        file_to_upload = self._virtuoso_dir + fixture
+        file_to_upload = os.path.join(self._virtuoso_dir, fixture)
         isql_up = ISQL_UP % {"ttl": file_to_upload,
                              "graph": self.__virtuoso_graph}
         out, err = self._run_isql(isql_up)
@@ -142,15 +124,15 @@ class Virtuoso(object):
                                                        "file_down")
                 _, stderr_value_rollback = self._run_isql(file_down, True)
                 if len(stderr_value_rollback) > 0:
-                    raise MigrationException("\nerror executing migration\
-                                        statement: %s\n\nRollback done\
-                                        partially: error executing rollback\
-                                        statement: %s" % (stderr_value,
+                    raise MigrationException("\nerror executing migration "
+                                        "statement: %s\n\nRollback done "
+                                        "partially: error executing rollback "
+                                        "statement: %s" % (stderr_value,
                                                         stderr_value_rollback))
                 else:
-                    raise MigrationException("\nerror executing migration\
-                                             statement: %s\n\nRollback done\
-                                             successfully!!!" % stderr_value)
+                    raise MigrationException("\nerror executing migration "
+                                             "statement: %s\n\nRollback done "
+                                             "successfully!!!" % stderr_value)
 
             if execution_log:
                 execution_log(stdout_value)
@@ -241,8 +223,8 @@ ORDER BY desc(?data) LIMIT 1
                                                             triples_insert_l2)
                     triples_insert_l2 = triples_insert_l2[:-2]
                     backward_migration = backward_migration + \
-                    u"\nSPARQL DELETE FROM <%s> { %s ?s. ?s %s } WHERE\
-                     { %s ?s. ?s %s };" % (graph, triples_insert_l1,
+                    (u"\nSPARQL DELETE FROM <%s> { %s ?s. ?s %s } WHERE "
+                    "{ %s ?s. ?s %s };") % (graph, triples_insert_l1,
                                            triples_insert_l2,
                                            triples_insert_l1,
                                            triples_insert_l2)
@@ -313,49 +295,45 @@ ORDER BY desc(?data) LIMIT 1
             'query_down': query_down.replace('"', '\\"').replace('\n', '\\n')
         }
         if insert is not None:
-            query_up += u'\nSPARQL INSERT INTO <%(m_graph)s> {\
-                        [] owl:versionInfo "%(c_version)s";\
-                        <%(m_graph)sendpoint> "%(endpoint)s";\
-                        <%(m_graph)susuario> "%(user)s";\
-                        <%(m_graph)sambiente> "%(host)s";\
-                        <%(m_graph)sproduto> "%(v_graph)s";\
-                        <%(m_graph)scommited> "%(date)s"^^xsd:dateTime;\
-                        <%(m_graph)sorigen> "%(origen)s";\
-                        <%(m_graph)sinserted> "%(insert)s".};' % values
-            query_down += u'\nSPARQL DELETE FROM <%(m_graph)s> {?s ?p ?o}\
-            WHERE {?s owl:versionInfo "%(c_version)s";\
-            <%(m_graph)sendpoint> "%(endpoint)s";\
-            <%(m_graph)susuario> "%(user)s";\
-            <%(m_graph)sambiente> "%(host)s";\
-            <%(m_graph)sproduto> "%(v_graph)s";\
-            <%(m_graph)scommited> "%(date)s"^^xsd:dateTime;\
-            <%(m_graph)sorigen> "%(origen)s";\
-            <%(m_graph)sinserted> "%(insert)s"; ?p ?o.};' % values
+            query_up += (u'\nSPARQL INSERT INTO <%(m_graph)s> { '
+                    '[] owl:versionInfo "%(c_version)s"; '
+                    '<%(m_graph)sendpoint> "%(endpoint)s"; '
+                    '<%(m_graph)susuario> "%(user)s"; '
+                    '<%(m_graph)sambiente> "%(host)s"; '
+                    '<%(m_graph)sproduto> "%(v_graph)s"; '
+                    '<%(m_graph)scommited> "%(date)s"^^xsd:dateTime; '
+                    '<%(m_graph)sorigen> "%(origen)s"; '
+                    '<%(m_graph)sinserted> "%(insert)s".};') % values
+            query_down += (u'\nSPARQL DELETE FROM <%(m_graph)s> {?s ?p ?o} '
+                    'WHERE {?s owl:versionInfo "%(c_version)s"; '
+                    '<%(m_graph)sendpoint> "%(endpoint)s"; '
+                    '<%(m_graph)susuario> "%(user)s"; '
+                    '<%(m_graph)sambiente> "%(host)s"; '
+                    '<%(m_graph)sproduto> "%(v_graph)s"; '
+                    '<%(m_graph)scommited> "%(date)s"^^xsd:dateTime; '
+                    '<%(m_graph)sorigen> "%(origen)s"; '
+                    '<%(m_graph)sinserted> "%(insert)s"; ?p ?o.};') % values
         else:
-            query_up += u'\nSPARQL INSERT INTO <%(m_graph)s> {\
-            [] owl:versionInfo "%(d_version)s";\
-            <%(m_graph)sendpoint> "%(endpoint)s";\
-            <%(m_graph)susuario> "%(user)s";\
-            <%(m_graph)sambiente> "%(host)s";\
-            <%(m_graph)sproduto> "%(v_graph)s";\
-            <%(m_graph)scommited> "%(date)s"^^xsd:dateTime;\
-            <%(m_graph)sorigen> "%(origen)s";\
-            <%(m_graph)schanges> "%(query_up)s".};' % values
-            query_down += u'\nSPARQL DELETE FROM <%(m_graph)s> {?s ?p ?o}\
-            WHERE {?s owl:versionInfo "%(d_version)s";\
-            <%(m_graph)sendpoint> "%(endpoint)s";\
-            <%(m_graph)susuario> "%(user)s";\
-            <%(m_graph)sambiente> "%(host)s";\
-            <%(m_graph)sproduto> "%(v_graph)s";\
-            <%(m_graph)scommited> "%(date)s"^^xsd:dateTime;\
-            <%(m_graph)sorigen> "%(origen)s";\
-            <%(m_graph)schanges> "%(query_up)s"; ?p ?o.};' % values
+            query_up += (u'\nSPARQL INSERT INTO <%(m_graph)s> { '
+                    '[] owl:versionInfo "%(d_version)s"; '
+                    '<%(m_graph)sendpoint> "%(endpoint)s"; '
+                    '<%(m_graph)susuario> "%(user)s"; '
+                    '<%(m_graph)sambiente> "%(host)s"; '
+                    '<%(m_graph)sproduto> "%(v_graph)s"; '
+                    '<%(m_graph)scommited> "%(date)s"^^xsd:dateTime; '
+                    '<%(m_graph)sorigen> "%(origen)s"; '
+                    '<%(m_graph)schanges> "%(query_up)s".};') % values
+            query_down += (u'\nSPARQL DELETE FROM <%(m_graph)s> {?s ?p ?o} '
+                    'WHERE {?s owl:versionInfo "%(d_version)s"; '
+                    '<%(m_graph)sendpoint> "%(endpoint)s"; '
+                    '<%(m_graph)susuario> "%(user)s"; '
+                    '<%(m_graph)sambiente> "%(host)s"; '
+                    '<%(m_graph)sproduto> "%(v_graph)s"; '
+                    '<%(m_graph)scommited> "%(date)s"^^xsd:dateTime; '
+                    '<%(m_graph)sorigen> "%(origen)s"; '
+                    '<%(m_graph)schanges> "%(query_up)s"; ?p ?o.};') % values
 
         return query_up, query_down
-
-    #def get_statements(self, input_file, current_version, origen="insert"):
-    #    return self.get_sparql(None, self.get_ontology_from_file(input_file),
-    #                            current_version, None, origen, input_file)
 
     def get_ontology_by_version(self, version):
         file_name = self._migrations_dir + "/" + self.__virtuoso_ontology

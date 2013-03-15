@@ -95,15 +95,3 @@ class Connection(object):
     def __del__(self):
         """Attempt to clean up if not explicitly closed."""
         self.close()
-
-
-def main():
-    """Little test when called directly."""
-    # Set these to your own details.
-    myssh = Connection('example.com')
-    myssh.put('ssh.py')
-    myssh.close()
-
-# start the ball rolling.
-if __name__ == "__main__":
-    main()

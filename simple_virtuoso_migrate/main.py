@@ -11,7 +11,6 @@ class Main(object):
 
     def __init__(self, config):
         Main._check_configuration(config)
-
         self.config = config
         self.virtuoso = Virtuoso(config)
         self.virtuoso_migrate = SimpleVirtuosoMigrate(config)
@@ -23,9 +22,8 @@ class Main(object):
         self._execution_log("\nStarting Virtuoso migration...",
                             "PINK",
                             log_level_limit=1)
-        #if self.config.get("add_ttl", None) is not None:
-        #    self._add_triples()
-        if self.config.get("load_ttl") is not None:
+
+        if self.config.get("load_ttl", None) is not None:
             self._load_triples()
         else:
             self._migrate()
@@ -40,7 +38,7 @@ class Main(object):
         basepath = os.path.dirname(files_to_load)
         if os.path.isdir(files_to_load):
             files = []
-            for i in os.listdir(files_to_load): 
+            for i in os.listdir(files_to_load):
                 files.append(os.path.join(basepath, i))
         else:
             files = [files_to_load]
@@ -85,18 +83,6 @@ class Main(object):
             else:
                 self._execution_log("\n".join(out_list), log_level_limit=1)
 
-    #def _add_triples(self):
-    #    """ Called if the -i option is passed in the command line """
-    #
-    #    current_version, origen = self.virtuoso.get_current_version()
-    #    self._execution_log("- TTL to insert is: %s" %
-    #                self.config.get("add_ttl"), "GREEN", log_level_limit=1)
-    #
-    #    sparql_up, sparql_down = self.virtuoso.get_statements(
-    #                     self.config.get("add_ttl"), current_version, origen)
-    #    self._execute_migrations(sparql_up, sparql_down, current_version,
-    #                             self.config.get("add_ttl"))
-
     def _migrate(self):
         """ Execute migrations based on git tags """
         source = 'git'
@@ -113,8 +99,9 @@ class Main(object):
                                         self.config.get("file_migration")),
                                     "GREEN",
                                     log_level_limit=1)
-                CLI.error_and_exit("Can't execute migration FROM None TO File \
-                            (TIP: version it using git --tag and then use -m)")
+                CLI.error_and_exit("Can't execute migration FROM None TO File "
+                                   "(TIP: version it using git --tag and then "
+                                   "use -m)")
         else:
             if origen == "file":
                 if self.config.get("file_migration") is not None:
@@ -126,9 +113,9 @@ class Main(object):
                                             self.config.get("file_migration")),
                                         "GREEN",
                                         log_level_limit=1)
-                    CLI.error_and_exit("Can't execute migration FROM File TO\
-                                        File (TIP: version it using git --tag\
-                                        and then use -m)")
+                    CLI.error_and_exit("Can't execute migration FROM File TO "
+                                       "File (TIP: version it using git --tag "
+                                       "and then use -m)")
 
             current_ontology = self.virtuoso.get_ontology_by_version(
                                                             current_version)
@@ -179,15 +166,15 @@ class Main(object):
                             log_level_limit=1)
 
         if self.config.get("show_sparql_only"):
-            self._execution_log("\nWARNING: commands are not being executed \
-                                ('--show_sparql_only' activated)",
+            self._execution_log("\nWARNING: commands are not being executed "
+                                "('--show_sparql_only' activated)",
                                 "RED",
                                 log_level_limit=1)
         else:
             self._execution_log("\nStarting Migration!", log_level_limit=1)
 
         if len(sparql_up.splitlines()) == 2 and \
-                                        self.config.get("load_ttl") is None:
+                                        self.config.get("load_ttl", None) is None:
             self._execution_log("\nNothing to do.\n", "PINK",
                                 log_level_limit=1)
             return
@@ -220,20 +207,21 @@ class Main(object):
     @staticmethod
     def _check_configuration(config):
         if not isinstance(config, Config):
-            raise Exception("config must be an instance of\
-                            simple_virtuoso_migrate.config.Config")
+            raise Exception("config must be an instance of "
+                            "simple_virtuoso_migrate.config.Config")
 
         required_configs = ['database_host',
                             'database_endpoint',
                             'database_user',
                             'database_password',
-                            'host_user',
-                            'host_password',
                             'database_migrations_dir',
                             'database_port',
                             'database_graph',
                             'database_ontology',
-                            'file_migration']
+                            'file_migration',
+                            'host_user',
+                            'host_password',
+                            'migration_graph']
 
         for key in required_configs:
             #check if config has the key, if do not have will raise exception

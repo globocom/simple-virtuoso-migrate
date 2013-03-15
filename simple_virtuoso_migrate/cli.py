@@ -71,11 +71,6 @@ class CLI(object):
                 default=None,
                 help="Create migration from file"),
 
-        #make_option("-i", "--insert",
-        #        dest="add_ttl",
-        #        default=None,
-        #        help="Insert TTL file"),
-
         make_option("-a", "--add",
                 dest="load_ttl",
                 default=None,

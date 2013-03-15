@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 import unittest
 import datetime
 import os
@@ -8,6 +8,7 @@ from simple_virtuoso_migrate.config import Config
 from simple_virtuoso_migrate.main import Virtuoso
 from simple_virtuoso_migrate.core.exceptions import MigrationException
 from tests import create_file, delete_files, BaseTest
+
 
 class VirtuosoTest(BaseTest):
 
@@ -22,7 +23,10 @@ class VirtuosoTest(BaseTest):
         self.config.put("database_password", "password")
         self.config.put("database_port", 9999)
         self.config.put("database_endpoint", "endpoint")
-
+        self.config.put("host_user", "host-user")
+        self.config.put("host_password", "host-passwd")
+        self.config.put("virtuoso_dirs_allowed", "/tmp")
+        self.config.put("migration_graph", "http://example.com/")
         create_file("test.ttl", "")
 
         self.data_ttl_content = """
@@ -32,7 +36,6 @@ class VirtuosoTest(BaseTest):
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
-
 <http://example.com/John> rdf:type <http://example.com/Person>.
 """
 
@@ -69,8 +72,7 @@ class VirtuosoTest(BaseTest):
                     owl:onClass :RoleOnSoapOpera ;
                     owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
                     owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger
-                ].
-"""
+                ]."""
 
         create_file("structure_02.ttl", self.structure_02_ttl_content)
 
@@ -78,41 +80,42 @@ class VirtuosoTest(BaseTest):
         super(VirtuosoTest, self).tearDown()
         delete_files("*.ttl")
 
-    @patch('subprocess.Popen', return_value=Mock(**{"communicate.return_value":("out", "err")}))
-    def test_it_should_use_popen_to_run_a_command(self, popen_mock):
-        Virtuoso(self.config).command_call("echo 1")
-        popen_mock.assert_called_with('echo 1', shell=True, stderr=-1, stdout=-1)
+#    @patch('subprocess.Popen', return_value=Mock(**{"communicate.return_value": ("out", "err")}))
+#    def test_it_should_use_popen_to_run_a_command(self, popen_mock):
+#        Virtuoso(self.config).command_call("echo 1")
+#        popen_mock.assert_called_with('echo 1', shell=True, stderr=-1, stdout=-1)
 
-    def test_it_should_return_stdout_and_stderr(self):
-        stdout, _ = Virtuoso(self.config).command_call("echo 'out'")
-        _, stderr = Virtuoso(self.config).command_call("python -V")
+#    def test_it_should_return_stdout_and_stderr(self):
+#        stdout, _ = Virtuoso(self.config).command_call("echo 'out'")
+#        _, stderr = Virtuoso(self.config).command_call("python -V")
+#
+#        self.assertEqual('out\n', stdout)
+#        self.assertEqual('python', stderr.split(' ')[0].lower())
 
-        self.assertEqual('out\n', stdout)
-        self.assertEqual('python', stderr.split(' ')[0].lower())
+#    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso.command_call', return_value=('', ''))
+#    def test_it_should_use_isql_executable_to_connect_to_virtuoso(self, command_call_mock):
+#        virtuoso = Virtuoso(self.config)
+#        conn = virtuoso.connect()
+#        self.assertEqual('isql -U user -P password -H localhost -S 9999 < ', conn)
+#        command_call_mock.assert_called_with('echo "status();"| isql -U user -P password -H localhost -S 9999 ')
 
-    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso.command_call', return_value=('', ''))
-    def test_it_should_use_isql_executable_to_connect_to_virtuoso(self, command_call_mock):
-        virtuoso = Virtuoso(self.config)
-        conn = virtuoso.connect()
-        self.assertEqual('isql -U user -P password -H localhost -S 9999 < ', conn)
-        command_call_mock.assert_called_with('echo "status();"| isql -U user -P password -H localhost -S 9999 ')
-
-    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso.command_call', return_value=('', 'some error'))
-    def test_it_should_raise_error_if_isql_status_return_error(self, command_call_mock):
-        virtuoso = Virtuoso(self.config)
-        self.assertRaisesWithMessage(Exception, 'could not connect to virtuoso: some error', virtuoso.connect)
+#    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso.command_call',
+#           return_value=('', 'some error'))
+#    def test_it_should_raise_error_if_isql_status_return_error(self, command_call_mock):
+#        virtuoso = Virtuoso(self.config)
+#        self.assertRaisesWithMessage(Exception, 'could not connect to virtuoso: some error', virtuoso.connect)
 
     @patch('simple_virtuoso_migrate.virtuoso.Utils.write_temporary_file', return_value='filename.ttl')
-    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso.command_call', return_value=('', ''))
-    def test_it_should_write_a_file_with_sparql_up_when_executing_change(self, command_call_mock, write_temporary_file_mock):
+    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso._run_isql', return_value=('', ''))
+    def test_it_should_write_a_file_with_sparql_up_when_executing_change(self, run_isql_mock, write_temporary_file_mock):
         virtuoso = Virtuoso(self.config)
         virtuoso.execute_change("sparql_up", "sparql_down")
         write_temporary_file_mock.assert_called_with("set echo on;\nsparql_up", "file_up")
-        command_call_mock.assert_called_with('isql -U user -P password -H localhost -S 9999 < filename.ttl')
+        run_isql_mock.assert_called_with('filename.ttl', True)
 
     @patch('simple_virtuoso_migrate.virtuoso.Utils.write_temporary_file', return_value='filename.ttl')
-    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso.command_call', return_value=('', ''))
-    def test_it_should_delete_the_temporary_file_with_sparql_up_when_executing_change(self, command_call_mock, write_temporary_file_mock):
+    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso._run_isql', return_value=('', ''))
+    def test_it_should_delete_the_temporary_file_with_sparql_up_when_executing_change(self, run_isql_mock, write_temporary_file_mock):
         create_file('filename.ttl', 'content')
 
         virtuoso = Virtuoso(self.config)
@@ -120,18 +123,18 @@ class VirtuosoTest(BaseTest):
         self.assertFalse(os.path.exists('filename.ttl'))
 
     @patch('simple_virtuoso_migrate.virtuoso.Utils.write_temporary_file', return_value='filename.ttl')
-    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso.command_call', side_effect=Exception("some error"))
-    def test_it_should_delete_the_temporary_file_with_sparql_up_when_executing_change_raise_an_error(self, command_call_mock, write_temporary_file_mock):
+    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso._run_isql', side_effect=Exception("some error"))
+    def test_it_should_delete_the_temporary_file_with_sparql_up_when_executing_change_raise_an_error(self, run_isql_mock, write_temporary_file_mock):
         create_file('filename.ttl', 'content')
 
         virtuoso = Virtuoso(self.config)
-        self.assertRaisesWithMessage(Exception, 'could not connect to virtuoso: some error', virtuoso.execute_change, "sparql_up", "sparql_down")
+        self.assertRaisesWithMessage(Exception, 'some error', virtuoso.execute_change, "sparql_up", "sparql_down")
         self.assertFalse(os.path.exists('filename.ttl'))
 
     @patch('simple_virtuoso_migrate.virtuoso.Utils.write_temporary_file')
-    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso.command_call')
-    def test_it_should_write_a_file_with_sparql_down_when_executing_change_raise_an_error(self, command_call_mock, write_temporary_file_mock):
-        command_call_mock.side_effect = command_call_side_effect
+    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso._run_isql')
+    def test_it_should_write_a_file_with_sparql_down_when_executing_change_raise_an_error(self, run_isql_mock, write_temporary_file_mock):
+        run_isql_mock.side_effect = command_call_side_effect
         write_temporary_file_mock.side_effect = temp_file_side_effect
 
         virtuoso = Virtuoso(self.config)
@@ -143,17 +146,16 @@ class VirtuosoTest(BaseTest):
         self.assertEqual(expected_calls, write_temporary_file_mock.mock_calls)
 
         expected_calls = [
-            call('echo "status();"| isql -U user -P password -H localhost -S 9999 '),
-            call('isql -U user -P password -H localhost -S 9999 < filename_up.ttl'),
-            call('isql -U user -P password -H localhost -S 9999 < filename_down.ttl')
+            call('filename_up.ttl', True),
+            call('filename_down.ttl', True)
         ]
-        self.assertEqual(expected_calls, command_call_mock.mock_calls)
+        self.assertEqual(expected_calls, run_isql_mock.mock_calls)
 
     @patch('simple_virtuoso_migrate.virtuoso.Utils.write_temporary_file')
-    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso.command_call')
-    def test_it_should_delete_the_temporary_file_with_sparql_down_when_executing_change(self, command_call_mock, write_temporary_file_mock):
+    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso._run_isql')
+    def test_it_should_delete_the_temporary_file_with_sparql_down_when_executing_change(self, run_isql_mock, write_temporary_file_mock):
         create_file('filename_down.ttl', 'content')
-        command_call_mock.side_effect = command_call_side_effect
+        run_isql_mock.side_effect = command_call_side_effect
         write_temporary_file_mock.side_effect = temp_file_side_effect
 
         virtuoso = Virtuoso(self.config)
@@ -161,22 +163,22 @@ class VirtuosoTest(BaseTest):
         self.assertFalse(os.path.exists('filename_down.ttl'))
 
     @patch('simple_virtuoso_migrate.virtuoso.Utils.write_temporary_file')
-    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso.command_call')
-    def test_it_should_raise_a_specific_message_when_rollback_fails_when_executing_change(self, command_call_mock, write_temporary_file_mock):
-        def command_call_side_effect(args):
-            if (args.find("_up") > 0) or (args.find("_down") > 0):
+    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso._run_isql')
+    def test_it_should_raise_a_specific_message_when_rollback_fails_when_executing_change(self, run_isql_mock, write_temporary_file_mock):
+        def command_call_side_effect(*args):
+            if (args[0].find("_up") > 0) or (args[0].find("_down") > 0):
                 return ("", "err")
             return ("out", "")
 
-        command_call_mock.side_effect = command_call_side_effect
+        run_isql_mock.side_effect = command_call_side_effect
         write_temporary_file_mock.side_effect = temp_file_side_effect
 
         virtuoso = Virtuoso(self.config)
         self.assertRaisesWithMessage(MigrationException, '\nerror executing migration statement: err\n\nRollback done partially: error executing rollback statement: err', virtuoso.execute_change, "sparql_up", "sparql_down")
 
     @patch('simple_virtuoso_migrate.virtuoso.Utils.write_temporary_file', return_value='filename.ttl')
-    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso.command_call', return_value=('output', ''))
-    def test_it_should_log_stdout_when_executing_change(self, command_call_mock, write_temporary_file_mock):
+    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso._run_isql', return_value=('output', ''))
+    def test_it_should_log_stdout_when_executing_change(self, run_isql_mock, write_temporary_file_mock):
         execution_log = Mock()
         virtuoso = Virtuoso(self.config)
         virtuoso.execute_change("sparql_up", "sparql_down", execution_log)
@@ -189,13 +191,12 @@ class VirtuosoTest(BaseTest):
         result_mock.__iter__.return_value = []
         result_mock.__len__.return_value = 0
         graph_query_mock.return_value = result_mock
-
         current, source = Virtuoso(self.config).get_current_version()
 
-        graph_query_mock.assert_called_with('prefix owl: <http://www.w3.org/2002/07/owl#>\nprefix xsd: <http://www.w3.org/2001/XMLSchema#>\nselect distinct ?version ?origen\nFROM <http://migration.example.com/>\n{{\nselect distinct ?version ?origen ?data\nFROM <http://migration.example.com/>\nwhere {?s owl:versionInfo ?version;\n<http://migration.example.com/commited> ?data;\n<http://migration.example.com/produto> "test";\n<http://migration.example.com/origen> ?origen.}\nORDER BY desc(?data) LIMIT 1\n}}')
+        graph_query_mock.assert_called_with('prefix owl: <http://www.w3.org/2002/07/owl#>\nprefix xsd: <http://www.w3.org/2001/XMLSchema#>\nselect distinct ?version ?origen\nFROM <http://example.com/>\n{{\nselect distinct ?version ?origen ?data\nFROM <http://example.com/>\nwhere {?s owl:versionInfo ?version;\n<http://example.com/commited> ?data;\n<http://example.com/produto> "test";\n<http://example.com/origen> ?origen.}\nORDER BY desc(?data) LIMIT 1\n}}')
 
-        self.assertEqual(None, current)
-        self.assertEqual(None, source)
+        self.assertIsNone(current)
+        self.assertIsNone(source)
 
     @patch('simple_virtuoso_migrate.virtuoso.Graph.query')
     @patch('simple_virtuoso_migrate.virtuoso.Graph.namespaces', return_value=['ns0'])
@@ -215,8 +216,8 @@ class VirtuosoTest(BaseTest):
 
         query_up, query_down = Virtuoso(self.config).get_sparql(destination_ontology=self.data_ttl_content, insert="data.ttl")
 
-        self.assertEqual('\nSPARQL INSERT INTO <test> {<http://example.com/John> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/Person> . };\nSPARQL INSERT INTO <http://migration.example.com/> {[] owl:versionInfo "None"; <http://migration.example.com/endpoint> "endpoint"; <http://migration.example.com/usuario> "user"; <http://migration.example.com/ambiente> "localhost"; <http://migration.example.com/produto> "test"; <http://migration.example.com/commited> "%s"^^xsd:dateTime; <http://migration.example.com/origen> "None"; <http://migration.example.com/changes> "\\nSPARQL INSERT INTO <test> {<http://example.com/John> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/Person> . };"; <http://migration.example.com/inserted> "data.ttl".};' % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), query_up)
-        self.assertEqual('\nSPARQL DELETE FROM <test> {<http://example.com/John> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/Person> . };\nSPARQL DELETE FROM <http://migration.example.com/> {?s ?p ?o} WHERE {?s owl:versionInfo "None"; <http://migration.example.com/endpoint> "endpoint"; <http://migration.example.com/usuario> "user"; <http://migration.example.com/ambiente> "localhost"; <http://migration.example.com/produto> "test"; <http://migration.example.com/commited> "%s"^^xsd:dateTime; <http://migration.example.com/origen> "None"; <http://migration.example.com/changes> "\\nSPARQL INSERT INTO <test> {<http://example.com/John> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/Person> . };"; <http://migration.example.com/inserted> "data.ttl"; ?p ?o.};'  % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), query_down)
+        self.assertEqual('\nSPARQL INSERT INTO <http://example.com/> { [] owl:versionInfo "None"; <http://example.com/endpoint> "endpoint"; <http://example.com/usuario> "user"; <http://example.com/ambiente> "localhost"; <http://example.com/produto> "test"; <http://example.com/commited> "%s"^^xsd:dateTime; <http://example.com/origen> "None"; <http://example.com/inserted> "data.ttl".};' % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), query_up)
+        self.assertEqual('\nSPARQL DELETE FROM <http://example.com/> {?s ?p ?o} WHERE {?s owl:versionInfo "None"; <http://example.com/endpoint> "endpoint"; <http://example.com/usuario> "user"; <http://example.com/ambiente> "localhost"; <http://example.com/produto> "test"; <http://example.com/commited> "%s"^^xsd:dateTime; <http://example.com/origen> "None"; <http://example.com/inserted> "data.ttl"; ?p ?o.};'  % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), query_down)
 
     def test_it_should_get_sparql_statments_when_forward_migration(self):
 
@@ -226,13 +227,13 @@ class VirtuosoTest(BaseTest):
                              "SPARQL INSERT INTO <test> {<http://example.com/role> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> . };",
                             ]
 
-        expected_log_migration_up = """SPARQL INSERT INTO <http://migration.example.com/> {[] owl:versionInfo "02"; <http://migration.example.com/endpoint> "endpoint"; <http://migration.example.com/usuario> "user"; <http://migration.example.com/ambiente> "localhost"; <http://migration.example.com/produto> "test"; <http://migration.example.com/commited> "%s"^^xsd:dateTime; <http://migration.example.com/origen> "file"; <http://migration.example.com/changes> "\\n<log>".};""" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        expected_log_migration_up = """SPARQL INSERT INTO <http://example.com/> { [] owl:versionInfo "02"; <http://example.com/endpoint> "endpoint"; <http://example.com/usuario> "user"; <http://example.com/ambiente> "localhost"; <http://example.com/produto> "test"; <http://example.com/commited> "%s"^^xsd:dateTime; <http://example.com/origen> "file"; <http://example.com/changes> "\\n<log>".};""" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         expected_lines_down = ["SPARQL DELETE FROM <test> {<http://example.com/role> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> . };",
                              "SPARQL DELETE FROM <test> {<http://example.com/RoleOnSoapOpera> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> . };",
                             ]
 
-        expected_log_migration_down = """SPARQL DELETE FROM <http://migration.example.com/> {?s ?p ?o} WHERE {?s owl:versionInfo "02"; <http://migration.example.com/endpoint> "endpoint"; <http://migration.example.com/usuario> "user"; <http://migration.example.com/ambiente> "localhost"; <http://migration.example.com/produto> "test"; <http://migration.example.com/commited> "%s"^^xsd:dateTime; <http://migration.example.com/origen> "file"; <http://migration.example.com/changes> "\\n<log>"; ?p ?o.};""" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        expected_log_migration_down = """SPARQL DELETE FROM <http://example.com/> {?s ?p ?o} WHERE {?s owl:versionInfo "02"; <http://example.com/endpoint> "endpoint"; <http://example.com/usuario> "user"; <http://example.com/ambiente> "localhost"; <http://example.com/produto> "test"; <http://example.com/commited> "%s"^^xsd:dateTime; <http://example.com/origen> "file"; <http://example.com/changes> "\\n<log>"; ?p ?o.};""" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         lines_up = query_up.strip(' \t\n\r').splitlines()
         self.assertEqual(4, len(lines_up))
@@ -276,15 +277,15 @@ class VirtuosoTest(BaseTest):
                              "SPARQL DELETE FROM <test> {<http://example.com/RoleOnSoapOpera> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> . };",
                             ]
 
-        expected_log_migration_up = """SPARQL INSERT INTO <http://migration.example.com/> {[] owl:versionInfo "01"; <http://migration.example.com/endpoint> "endpoint"; <http://migration.example.com/usuario> "user"; <http://migration.example.com/ambiente> "localhost"; <http://migration.example.com/produto> "test"; <http://migration.example.com/commited> "%s"^^xsd:dateTime; <http://migration.example.com/origen> "file"; <http://migration.example.com/changes> "\\n<log>".};""" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        expected_log_migration_up = """SPARQL INSERT INTO <http://example.com/> { [] owl:versionInfo "01"; <http://example.com/endpoint> "endpoint"; <http://example.com/usuario> "user"; <http://example.com/ambiente> "localhost"; <http://example.com/produto> "test"; <http://example.com/commited> "%s"^^xsd:dateTime; <http://example.com/origen> "file"; <http://example.com/changes> "\\n<log>".};""" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         expected_lines_down = ["SPARQL INSERT INTO <test> {<http://example.com/RoleOnSoapOpera> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> . };",
                              "SPARQL INSERT INTO <test> {<http://example.com/role> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> . };",
                             ]
 
-        expected_log_migration_down = """SPARQL DELETE FROM <http://migration.example.com/> {?s ?p ?o} WHERE {?s owl:versionInfo "01"; <http://migration.example.com/endpoint> "endpoint"; <http://migration.example.com/usuario> "user"; <http://migration.example.com/ambiente> "localhost"; <http://migration.example.com/produto> "test"; <http://migration.example.com/commited> "%s"^^xsd:dateTime; <http://migration.example.com/origen> "file"; <http://migration.example.com/changes> "\\n<log>"; ?p ?o.};""" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        expected_log_migration_down = """SPARQL DELETE FROM <http://example.com/> {?s ?p ?o} WHERE {?s owl:versionInfo "01"; <http://example.com/endpoint> "endpoint"; <http://example.com/usuario> "user"; <http://example.com/ambiente> "localhost"; <http://example.com/produto> "test"; <http://example.com/commited> "%s"^^xsd:dateTime; <http://example.com/origen> "file"; <http://example.com/changes> "\\n<log>"; ?p ?o.};""" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        """SPARQL INSERT INTO <http://migration.example.com/> {[] owl:versionInfo "01"; <http://migration.example.com/endpoint> "endpoint"; <http://migration.example.com/usuario> "user"; <http://migration.example.com/ambiente> "localhost"; <http://migration.example.com/produto> "test"; <http://migration.example.com/commited> "%s"^^xsd:dateTime; <http://migration.example.com/origen> "file"; <http://migration.example.com/changes> "\\n<log>".};""" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        """SPARQL INSERT INTO <http://example.com/> { [] owl:versionInfo "01"; <http://example.com/endpoint> "endpoint"; <http://example.com/usuario> "user"; <http://example.com/ambiente> "localhost"; <http://example.com/produto> "test"; <http://example.com/commited> "%s"^^xsd:dateTime; <http://example.com/origen> "file"; <http://example.com/changes> "\\n<log>".};""" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         lines_up = query_up.strip(' \t\n\r').splitlines()
         self.assertEqual(4, len(lines_up))
@@ -319,13 +320,13 @@ class VirtuosoTest(BaseTest):
             '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction>'
             ]]
 
-    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso.get_sparql')
-    def test_it_should_get_statments_to_execute_when_comparing_the_given_file_with_the_current_version(self, get_sparql_mock):
-        Virtuoso(self.config).get_statements("data.ttl", current_version='01', origen='file')
-        get_sparql_mock.assert_called_with(None, self.data_ttl_content, '01', None, 'file', 'data.ttl')
+#    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso.get_sparql')
+#    def test_it_should_get_statments_to_execute_when_comparing_the_given_file_with_the_current_version(self, get_sparql_mock):
+#        Virtuoso(self.config).get_statements("data.ttl", current_version='01', origen='file')
+#        get_sparql_mock.assert_called_with(None, self.data_ttl_content, '01', None, 'file', 'data.ttl')
 
-    def test_it_should_raise_exception_when_getting_statments_of_an_unexistent_ttl_file(self):
-        self.assertRaisesWithMessage(Exception, 'migration file does not exist (current_file.ttl)', Virtuoso(self.config).get_statements, "current_file.ttl", current_version='01', origen='file')
+#    def test_it_should_raise_exception_when_getting_statments_of_an_unexistent_ttl_file(self):
+#        self.assertRaisesWithMessage(Exception, 'migration file does not exist (current_file.ttl)', Virtuoso(self.config).get_statements, "current_file.ttl", current_version='01', origen='file')
 
     def test_it_should_raise_exception_if_specified_ontology_does_not_exists_on_migrations_dir(self):
         self.config.update('database_ontology', 'ontology.ttl')
@@ -353,16 +354,19 @@ class VirtuosoTest(BaseTest):
         expected_message = 'Error parsing graph at line 2 of <>:\nBad syntax (Prefix ":" not bound) at ^ in:\n"\n        ^:is_part_of rdf:type owl:ObjectProperty ;\n                  ..."'
         self.assertRaisesWithMessage(Exception, expected_message, Virtuoso(self.config).get_sparql, current_ontology=None, destination_ontology=graph)
 
+
 def export_git_file_side_effect(version):
     return "content_%s" % version
+
 
 def temp_file_side_effect(content, reference):
     if reference == "file_down":
         return "filename_down.ttl"
     return "filename_up.ttl"
 
-def command_call_side_effect(args):
-    if args.find("_up") > 0:
+
+def command_call_side_effect(*args):
+    if args[0].find("_up") > 0:
         return ("", "err")
     return ("out", "")
 

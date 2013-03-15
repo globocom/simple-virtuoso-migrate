@@ -23,8 +23,8 @@ class Config(object):
         """ Put config_key in config file if it is not there  """
         config_key = config_key.lower()
         if config_key in self._config:
-            raise Exception("the configuration key '%s' already exists and you\
-                            cannot override any configuration" % config_key)
+            raise Exception("the configuration key '%s' already exists and you "
+                            "cannot override any configuration" % config_key)
         self._config[config_key] = config_value
 
     def update(self, config_key, config_value):

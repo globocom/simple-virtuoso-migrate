@@ -4,6 +4,7 @@ from simple_virtuoso_migrate.main import Main
 from simple_virtuoso_migrate.config import Config
 from tests import BaseTest, create_file, delete_files
 
+
 class MainTest(BaseTest):
     def setUp(self):
         super(MainTest, self).setUp()
@@ -16,27 +17,128 @@ class MainTest(BaseTest):
             'database_migrations_dir': '.',
             'database_graph': 'graph',
             'database_ontology': 'ontology.ttl',
+            'host_user': 'host-user',
+            'host_password': 'host-passwd',
             'file_migration': None,
-            'show_sparql_only': None
+            'migration_graph': 'http://example.com',
+            'show_sparql_only': None,
+            'virtuoso_dirs_allowed': '/tmp'
         }
 
         create_file("ontology.ttl", "content")
+        create_file("new_triple.ttl")
 
     def tearDown(self):
         super(MainTest, self).tearDown()
         delete_files("ontology.ttl")
+        delete_files("new_triple.ttl")
 
     def test_it_should_raise_error_if_a_required_config_to_migrate_is_missing(self):
-        self.assertRaisesWithMessage(Exception, "invalid key ('database_host')", Main, Config())
-        self.assertRaisesWithMessage(Exception, "invalid key ('database_endpoint')", Main, Config({'database_host': ''}))
-        self.assertRaisesWithMessage(Exception, "invalid key ('database_user')", Main, Config({'database_host': '', 'database_endpoint': ''}))
-        self.assertRaisesWithMessage(Exception, "invalid key ('database_password')", Main, Config({'database_host': '', 'database_endpoint': '', 'database_user': ''}))
-        self.assertRaisesWithMessage(Exception, "invalid key ('database_migrations_dir')", Main, Config({'database_host': '', 'database_endpoint': '', 'database_user': '', 'database_password': ''}))
-        self.assertRaisesWithMessage(Exception, "invalid key ('database_port')", Main, Config({'database_host': '', 'database_endpoint': '', 'database_user': '', 'database_password': '', 'database_migrations_dir': ''}))
-        self.assertRaisesWithMessage(Exception, "invalid key ('database_graph')", Main, Config({'database_host': '', 'database_endpoint': '', 'database_user': '', 'database_password': '', 'database_migrations_dir': '', 'database_port': ''}))
-        self.assertRaisesWithMessage(Exception, "invalid key ('database_ontology')", Main, Config({'database_host': '', 'database_endpoint': '', 'database_user': '', 'database_password': '', 'database_migrations_dir': '', 'database_port': '', 'database_graph': ''}))
-        self.assertRaisesWithMessage(Exception, "invalid key ('file_migration')", Main, Config({'database_host': '', 'database_endpoint': '', 'database_user': '', 'database_password': '', 'database_migrations_dir': '', 'database_port': '', 'database_graph': '', 'database_ontology':''}))
+        self.assertRaisesWithMessage(Exception,
+                                     "invalid key ('database_host')",
+                                     Main,
+                                     Config())
+        self.assertRaisesWithMessage(Exception,
+                                     "invalid key ('database_endpoint')",
+                                     Main,
+                                     Config({'database_host': ''}))
+        self.assertRaisesWithMessage(Exception,
+                                     "invalid key ('database_user')",
+                                     Main,
+                                     Config({'database_host': '',
+                                             'database_endpoint': ''}))
+        self.assertRaisesWithMessage(Exception,
+                                     "invalid key ('database_password')",
+                                     Main,
+                                     Config({'database_host': '',
+                                             'database_endpoint': '',
+                                             'database_user': ''}))
 
+        self.assertRaisesWithMessage(Exception,
+                                     "invalid key ('database_migrations_dir')",
+                                     Main,
+                                     Config({'database_host': '',
+                                             'database_endpoint': '',
+                                             'database_user': '',
+                                             'database_password': ''}))
+        self.assertRaisesWithMessage(Exception,
+                                     "invalid key ('database_port')",
+                                     Main,
+                                     Config({'database_host': '',
+                                             'database_endpoint': '',
+                                             'database_user': '',
+                                             'database_password': '',
+                                             'database_migrations_dir': ''}))
+        self.assertRaisesWithMessage(Exception,
+                                     "invalid key ('database_graph')",
+                                     Main,
+                                     Config({'database_host': '',
+                                             'database_endpoint': '',
+                                             'database_user': '',
+                                             'database_password': '',
+                                             'database_migrations_dir': '',
+                                             'database_port': ''}))
+        self.assertRaisesWithMessage(Exception,
+                                     "invalid key ('database_ontology')",
+                                     Main,
+                                     Config({'database_host': '',
+                                             'database_endpoint': '',
+                                             'database_user': '',
+                                             'database_password': '',
+                                             'database_migrations_dir': '',
+                                             'database_port': '',
+                                             'database_graph': ''}))
+        self.assertRaisesWithMessage(Exception,
+                                     "invalid key ('file_migration')",
+                                     Main,
+                                     Config({'database_host': '',
+                                             'database_endpoint': '',
+                                             'database_user': '',
+                                             'database_password': '',
+                                             'database_migrations_dir': '',
+                                             'database_port': '',
+                                             'database_graph': '',
+                                             'database_ontology': ''}))
+
+        self.assertRaisesWithMessage(Exception,
+                                     "invalid key ('host_user')",
+                                     Main,
+                                     Config({'database_host': '',
+                                             'database_endpoint': '',
+                                             'database_user': '',
+                                             'database_password': '',
+                                             'database_migrations_dir': '',
+                                             'database_port': '',
+                                             'database_graph': '',
+                                             'database_ontology': '',
+                                             'file_migration': ''}))
+        self.assertRaisesWithMessage(Exception,
+                                     "invalid key ('host_password')",
+                                     Main,
+                                     Config({'database_host': '',
+                                             'database_endpoint': '',
+                                             'database_user': '',
+                                             'database_password': '',
+                                             'database_migrations_dir': '',
+                                             'database_port': '',
+                                             'database_graph': '',
+                                             'database_ontology': '',
+                                             'file_migration': '',
+                                             'host_user': ''}))
+        self.assertRaisesWithMessage(Exception,
+                                     "invalid key ('migration_graph')",
+                                     Main,
+                                     Config({'database_host': '',
+                                             'database_endpoint': '',
+                                             'database_user': '',
+                                             'database_password': '',
+                                             'database_migrations_dir': '',
+                                             'database_port': '',
+                                             'database_graph': '',
+                                             'database_ontology': '',
+                                             'file_migration': '',
+                                             'host_user': '',
+                                             'host_password': ''}))
 
     @patch('simple_virtuoso_migrate.main.SimpleVirtuosoMigrate')
     @patch('simple_virtuoso_migrate.main.LOG')
@@ -49,92 +151,95 @@ class MainTest(BaseTest):
 
     @patch('simple_virtuoso_migrate.main.LOG')
     def test_it_should_use_log_dir_from_config(self, log_mock):
-        self.initial_config.update({'log_dir':'.', "database_migrations_dir":'.'})
+        self.initial_config.update({'log_dir': '.',
+                                    "database_migrations_dir": '.'})
         Main(Config(self.initial_config))
         log_mock.assert_called_with('.')
 
     @patch('simple_virtuoso_migrate.main.Virtuoso')
     def test_it_should_use_virtuoso_class(self, virtuoso_mock):
-        self.initial_config.update({'log_dir':'.', "database_migrations_dir":'.'})
-        config=Config(self.initial_config)
+        self.initial_config.update({'log_dir': '.',
+                                    "database_migrations_dir": '.'})
+        config = Config(self.initial_config)
         Main(config)
         virtuoso_mock.assert_called_with(config)
 
     def test_it_should_raise_error_if_config_is_not_an_instance_of_simple_virtuoso_migrate_config(self):
-        self.assertRaisesWithMessage(Exception, "config must be an instance of simple_virtuoso_migrate.config.Config", Main, config={})
+        self.assertRaisesWithMessage(Exception,
+                                     "config must be an instance of simple_virtuoso_migrate.config.Config",
+                                     Main,
+                                     config={})
 
     @patch('simple_virtuoso_migrate.main.Main._execution_log')
     @patch('simple_virtuoso_migrate.main.Virtuoso.execute_change')
-    @patch('simple_virtuoso_migrate.main.Virtuoso.get_statements', return_value=("sparql_up", "sparql_down"))
     @patch('simple_virtuoso_migrate.main.Virtuoso.get_current_version', return_value=(None, None))
-    def test_it_should_add_triples_if_the_database_is_empty_and_the_option_is_activated_by_the_user(self, current_version_mock, statements_mock, execute_change_mock, _execution_log_mock):
-        self.initial_config.update({'add_ttl':'new_triples', 'show_sparql_only':None})
+    @patch('simple_virtuoso_migrate.main.Virtuoso._run_isql', return_value=("", ""))
+    def test_it_should_add_triples_if_the_database_is_empty_and_the_option_is_activated_by_the_user(self, run_isql_mock, current_version_mock, execute_change_mock, _execution_log_mock):
+        self.initial_config.update({'load_ttl':'new_triple.ttl', 'show_sparql_only':None})
         main = Main(Config(self.initial_config))
         main.execute()
 
         expected_calls = [
             call('\nStarting Virtuoso migration...', 'PINK', log_level_limit=1),
-            call('- TTL to insert is: new_triples', 'GREEN', log_level_limit=1),
+            call("- TTL(s) to upload: ['new_triple.ttl']", 'GREEN', log_level_limit=1),
             call('- Current version is: None', 'GREEN', log_level_limit=1),
-            call('- Destination version is: new_triples', 'GREEN', log_level_limit=1),
+            call('- Destination version is: None', 'GREEN', log_level_limit=1),
             call('\nStarting Migration!', log_level_limit=1),
             call('===== executing =====', log_level_limit=1),
+            call('', log_level_limit=1),
             call('\nDone.\n', 'PINK', log_level_limit=1)
         ]
         self.assertEqual(expected_calls, _execution_log_mock.mock_calls)
-        statements_mock.assert_called_with('new_triples', None, None)
-        execute_change_mock.assert_called_with('sparql_up', 'sparql_down', execution_log=_execution_log_mock)
+#        execute_change_mock.assert_called_with('sparql_up', 'sparql_down', execution_log=_execution_log_mock)
 
     @patch('simple_virtuoso_migrate.main.Main._execution_log')
     @patch('simple_virtuoso_migrate.main.Virtuoso.execute_change')
-    @patch('simple_virtuoso_migrate.main.Virtuoso.get_statements', return_value=("sparql_up", "sparql_down"))
     @patch('simple_virtuoso_migrate.main.Virtuoso.get_current_version', return_value=('0.1', 'git'))
-    def test_it_should_add_triples_if_the_database_is_not_empty_and_the_option_is_activated_by_the_user(self, current_version_mock, statements_mock, execute_change_mock, _execution_log_mock):
-        self.initial_config.update({'add_ttl':'new_triples', 'show_sparql_only':None})
+    @patch('simple_virtuoso_migrate.main.Virtuoso._run_isql', return_value=("", ""))
+    def test_it_should_add_triples_if_the_database_is_not_empty_and_the_option_is_activated_by_the_user(self, run_isql_mock, current_version_mock, execute_change_mock, _execution_log_mock):
+        self.initial_config.update({'load_ttl':'new_triple.ttl', 'show_sparql_only':None})
         main = Main(Config(self.initial_config))
         main.execute()
 
         expected_calls = [
             call('\nStarting Virtuoso migration...', 'PINK', log_level_limit=1),
-            call('- TTL to insert is: new_triples', 'GREEN', log_level_limit=1),
+            call("- TTL(s) to upload: ['new_triple.ttl']", 'GREEN', log_level_limit=1),
             call('- Current version is: 0.1', 'GREEN', log_level_limit=1),
-            call('- Destination version is: new_triples', 'GREEN', log_level_limit=1),
+            call('- Destination version is: 0.1', 'GREEN', log_level_limit=1),
             call('\nStarting Migration!', log_level_limit=1),
             call('===== executing =====', log_level_limit=1),
+            call('', log_level_limit=1),
             call('\nDone.\n', 'PINK', log_level_limit=1)
         ]
         self.assertEqual(expected_calls, _execution_log_mock.mock_calls)
-        statements_mock.assert_called_with('new_triples', '0.1', 'git')
-        execute_change_mock.assert_called_with('sparql_up', 'sparql_down', execution_log=_execution_log_mock)
+#        execute_change_mock.assert_called_with('sparql_up', 'sparql_down', execution_log=_execution_log_mock)
 
     @patch('simple_virtuoso_migrate.main.Main._execution_log')
     @patch('simple_virtuoso_migrate.main.Virtuoso.execute_change')
-    @patch('simple_virtuoso_migrate.main.Virtuoso.get_statements', return_value=("sparql_up", "sparql_down"))
     @patch('simple_virtuoso_migrate.main.Virtuoso.get_current_version', return_value=('0.1', 'git'))
-    def test_it_should_not_add_triples_if_show_sparql_only_option_is_activated_by_the_user(self, current_version_mock, statements_mock, execute_change_mock, _execution_log_mock):
-        self.initial_config.update({'add_ttl':'new_triples', 'show_sparql_only':True})
+    def test_it_should_not_add_triples_if_show_sparql_only_option_is_activated_by_the_user(self, current_version_mock, execute_change_mock, _execution_log_mock):
+        self.initial_config.update({'load_ttl':'new_triple.ttl', 'show_sparql_only':True})
         main = Main(Config(self.initial_config))
         main.execute()
 
         expected_calls = [
             call('\nStarting Virtuoso migration...', 'PINK', log_level_limit=1),
-            call('- TTL to insert is: new_triples', 'GREEN', log_level_limit=1),
-            call('- Current version is: 0.1', 'GREEN', log_level_limit=1),
-            call('- Destination version is: new_triples', 'GREEN', log_level_limit=1),
-            call("\nWARNING: commands are not being executed ('--show_sparql_only' activated)", 'RED', log_level_limit=1),
-            call('__________ SPARQL statements executed __________', 'YELLOW', log_level_limit=1),
-            call('sparql_up', 'YELLOW', log_level_limit=1),
-            call('_____________________________________________', 'YELLOW', log_level_limit=1),
+            call("- TTL(s) to upload: ['new_triple.ttl']", 'GREEN', log_level_limit=1),
+#            call('- Current version is: 0.1', 'GREEN', log_level_limit=1),
+#            call('- Destination version is: 0.1', 'GREEN', log_level_limit=1),
+#            call("\nWARNING: commands are not being executed ('--show_sparql_only' activated)", 'RED', log_level_limit=1),
+#            call('__________ SPARQL statements executed __________', 'YELLOW', log_level_limit=1),
+#            call('sparql_up', 'YELLOW', log_level_limit=1),
+#            call('_____________________________________________', 'YELLOW', log_level_limit=1),
             call('\nDone.\n', 'PINK', log_level_limit=1)
         ]
         self.assertEqual(expected_calls, _execution_log_mock.mock_calls)
-        statements_mock.assert_called_with('new_triples', '0.1', 'git')
         self.assertEqual(0, execute_change_mock.call_count)
 
     @patch('simple_virtuoso_migrate.main.Main._execution_log')
     @patch('simple_virtuoso_migrate.main.Main._migrate')
     def test_it_should_migrate_db_if_create_migration_option_is_not_activated_by_user(self, migrate_mock, _execution_log_mock):
-        config=Config(self.initial_config)
+        config = Config(self.initial_config)
         main = Main(config)
         main.execute()
 
@@ -167,7 +272,7 @@ class MainTest(BaseTest):
     @patch('simple_virtuoso_migrate.main.LOG')
     @patch('simple_virtuoso_migrate.main.CLI.msg')
     def test_it_should_write_the_message_to_cli_using_default_color(self, cli_mock, log_mock, simplevirtuosomigrate_mock):
-        self.initial_config.update({'log_level':3})
+        self.initial_config.update({'log_level': 3})
         main = Main(config=Config(self.initial_config))
         main._execution_log('message to log')
 
@@ -183,7 +288,7 @@ class MainTest(BaseTest):
 
     @patch('simple_virtuoso_migrate.main.SimpleVirtuosoMigrate', return_value=Mock(**{'check_if_version_exists.return_value':True}))
     def test_it_should_get_destination_version_when_user_informs_a_specific_version(self, simplevirtuosomigrate_mock):
-        self.initial_config.update({"schema_version":"20090214115300"})
+        self.initial_config.update({"schema_version": "20090214115300"})
         main = Main(Config(self.initial_config))
         self.assertEqual("20090214115300", main._get_destination_version())
         main.virtuoso_migrate.check_if_version_exists.assert_called_with('20090214115300')
@@ -191,16 +296,18 @@ class MainTest(BaseTest):
 
     @patch('simple_virtuoso_migrate.main.SimpleVirtuosoMigrate', return_value=Mock(**{'latest_version_available.return_value':'latest_version_available'}))
     def test_it_should_get_destination_version_when_user_does_not_inform_a_specific_version(self, simplevirtuosomigrate_mock):
-        self.initial_config.update({"schema_version":None})
+        self.initial_config.update({"schema_version": None})
         main = Main(Config(self.initial_config))
         self.assertEqual("latest_version_available", main._get_destination_version())
 
     @patch('simple_virtuoso_migrate.main.SimpleVirtuosoMigrate', return_value=Mock(**{'check_if_version_exists.return_value':False}))
     @patch('simple_virtuoso_migrate.main.Virtuoso', return_value=Mock(**{'get_current_version.return_value':('current_version', 'git')}))
     def test_it_should_raise_exception_when_get_destination_version_and_version_does_not_exist_on_migrations_dir(self, virtuoso_mock, simplevirtuosomigrate_mock):
-        self.initial_config.update({"schema_version":"20090214115900"})
+        self.initial_config.update({"schema_version": "20090214115900"})
         main = Main(Config(self.initial_config))
-        self.assertRaisesWithMessage(Exception, 'version not found (20090214115900)', main.execute)
+        self.assertRaisesWithMessage(Exception,
+                                     'version not found (20090214115900)',
+                                     main.execute)
         main.virtuoso_migrate.check_if_version_exists.assert_called_with('20090214115900')
         self.assertEqual(1, main.virtuoso_migrate.check_if_version_exists.call_count)
 
@@ -268,16 +375,20 @@ class MainTest(BaseTest):
     @patch('simple_virtuoso_migrate.main.Main._execution_log')
     @patch('simple_virtuoso_migrate.main.CLI.msg')
     def test_it_should_accept_a_schema_version_option_instead_file_migration(self, cli_mock, _execution_log_mock, simplevirtuosomigrate_mock, virtuoso_mock, execute_migrations_mock):
-        self.initial_config.update({"schema_version":"version", "file_migration":None})
+        self.initial_config.update({"schema_version": "version",
+                                    "file_migration": None})
         main = Main(Config(self.initial_config))
         main.execute()
 
         expected_calls = [
-            call('\nStarting Virtuoso migration...', 'PINK', log_level_limit=1),
+            call('\nStarting Virtuoso migration...', 'PINK',
+                 log_level_limit=1),
             call('\nDone.\n', 'PINK', log_level_limit=1)
         ]
         self.assertEqual(expected_calls, _execution_log_mock.mock_calls)
-        execute_migrations_mock.assert_called_with('sparql_up', 'sparql_down', 'current_version', 'version')
+        execute_migrations_mock.assert_called_with('sparql_up', 'sparql_down',
+                                                   'current_version',
+                                                   'version')
 
     @patch('simple_virtuoso_migrate.main.Main._execute_migrations')
     @patch('simple_virtuoso_migrate.main.Virtuoso', return_value=Mock(**{'get_current_version.return_value':(None, None), 'get_sparql.return_value':('sparql_up', 'sparql_down')}))
@@ -285,7 +396,8 @@ class MainTest(BaseTest):
     @patch('simple_virtuoso_migrate.main.Main._execution_log')
     @patch('simple_virtuoso_migrate.main.CLI.msg')
     def test_it_should_accept_a_schema_version_option_for_first_database_migration(self, cli_mock, _execution_log_mock, simplevirtuosomigrate_mock, virtuoso_mock, execute_migrations_mock):
-        self.initial_config.update({"schema_version":"version", "file_migration":None})
+        self.initial_config.update({"schema_version": "version",
+                                    "file_migration": None})
         main = Main(Config(self.initial_config))
         main.execute()
 

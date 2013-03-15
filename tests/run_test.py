@@ -7,6 +7,7 @@ from mock import patch, Mock
 from tests import create_file, delete_files
 from simple_virtuoso_migrate import run
 
+
 class RunTest(unittest.TestCase):
 
     def setUp(self):
@@ -31,9 +32,11 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
 
     @patch('codecs.getwriter')
     @patch('sys.stdout', encoding='iso-8859-1')
-    def test_it_should_ensure_stdout_is_using_an_utf8_encoding(self, stdout_mock, codecs_mock):
+    def test_it_should_ensure_stdout_is_using_an_utf8_encoding(self,
+                                                               stdout_mock,
+                                                               codecs_mock):
         new_stdout = Mock()
-        codecs_mock.return_value = Mock(**{'return_value':new_stdout})
+        codecs_mock.return_value = Mock(**{'return_value': new_stdout})
 
         reload(simple_virtuoso_migrate.run)
 
@@ -41,12 +44,16 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
         self.assertEqual(new_stdout, sys.stdout)
 
     def test_it_should_define_a_version_string(self):
-        self.assertTrue(isinstance(simple_virtuoso_migrate.SIMPLE_VIRTUOSO_MIGRATE_VERSION, str))
+        self.assertIsInstance(
+                     simple_virtuoso_migrate.SIMPLE_VIRTUOSO_MIGRATE_VERSION,
+                    str)
 
     @patch('sys.stdout', new_callable=StringIO)
     @patch('simple_virtuoso_migrate.cli.CLI.parse')
-    def test_it_should_use_cli_to_parse_arguments(self, parse_mock, stdout_mock):
-        parse_mock.return_value = (Mock(simple_virtuoso_migrate_version=True), [])
+    def test_it_should_use_cli_to_parse_arguments(self, parse_mock,
+                                                  stdout_mock):
+        parse_mock.return_value = (Mock(simple_virtuoso_migrate_version=True),
+                                   [])
         try:
             run.run_from_argv()
         except SystemExit:
@@ -56,8 +63,10 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
 
     @patch('sys.stdout', new_callable=StringIO)
     @patch('simple_virtuoso_migrate.cli.CLI.parse')
-    def test_it_should_show_help_when_no_args_is_given(self, parse_mock, stdout_mock):
-        parse_mock.return_value = (Mock(simple_virtuoso_migrate_version=True), [])
+    def test_it_should_show_help_when_no_args_is_given(self, parse_mock,
+                                                       stdout_mock):
+        parse_mock.return_value = (Mock(simple_virtuoso_migrate_version=True),
+                                   [])
         try:
             run.run_from_argv(None)
         except SystemExit:
@@ -65,19 +74,21 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
 
         parse_mock.assert_called_with(["-h"])
 
-
     @patch('sys.stdout', new_callable=StringIO)
-    def test_it_should_print_simple_virtuoso_migrate_version_and_exit(self, stdout_mock):
+    def test_it_should_print_simple_virtuoso_migrate_version_and_exit(self,
+                                                                stdout_mock):
         try:
             run.run_from_argv(["-v"])
         except SystemExit, e:
             self.assertEqual(0, e.code)
-
-        self.assertEqual('simple-virtuoso-migrate v%s\n\n' % simple_virtuoso_migrate.SIMPLE_VIRTUOSO_MIGRATE_VERSION, stdout_mock.getvalue())
+        compiled = ('simple-virtuoso-migrate v%s\n\n' %\
+                    simple_virtuoso_migrate.SIMPLE_VIRTUOSO_MIGRATE_VERSION)
+        self.assertEqual(compiled, stdout_mock.getvalue())
 
     @patch('sys.stdout', new_callable=StringIO)
     @patch('simple_virtuoso_migrate.cli.CLI.show_colors')
-    def test_it_should_activate_use_of_colors(self, show_colors_mock, stdout_mock):
+    def test_it_should_activate_use_of_colors(self, show_colors_mock,
+                                              stdout_mock):
         try:
             run.run_from_argv(["--color"])
         except SystemExit:
@@ -108,8 +119,11 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
         self.assertEqual('[ERROR] occur an error\n\n', stdout_mock.getvalue())
 
     @patch.object(simple_virtuoso_migrate.main.Main, 'execute')
-    @patch.object(simple_virtuoso_migrate.main.Main, '__init__', return_value=None)
-    @patch.object(simple_virtuoso_migrate.helpers.Utils, 'get_variables_from_file', return_value = {'DATABASE_HOST':'host', 'DATABASE_USER': 'root', 'DATABASE_PASSWORD':'', 'DATABASE_PORT':'port', 'DATABASE_ENDPOINT':'database', 'DATABASE_MIGRATIONS_DIR':'.', 'DATABASE_GRAPH':'graph', 'DATABASE_ONTOLOGY':'ontology'})
+    @patch.object(simple_virtuoso_migrate.main.Main, '__init__',
+                  return_value=None)
+    @patch.object(simple_virtuoso_migrate.helpers.Utils,
+                  'get_variables_from_file',
+                  return_value={'DATABASE_HOST':'host', 'DATABASE_USER': 'root', 'DATABASE_PASSWORD':'', 'DATABASE_PORT':'port', 'DATABASE_ENDPOINT':'database', 'DATABASE_MIGRATIONS_DIR':'.', 'DATABASE_GRAPH':'graph', 'DATABASE_ONTOLOGY':'ontology'})
     def test_it_should_read_configuration_file_using_fileconfig_class_and_execute_with_default_configuration(self, get_variables_from_file_mock, main_mock, execute_mock):
         run.run_from_argv(["-c", os.path.abspath('sample.conf')])
 
@@ -134,20 +148,30 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
         self.assertEqual(False, config_used.get('show_sparql_only'))
         self.assertEqual(None, config_used.get('log_dir'))
         self.assertEqual(None, config_used.get('file_migration'))
-        self.assertEqual(None, config_used.get('add_ttl'))
+        self.assertEqual(None, config_used.get('load_ttl'))
         self.assertEqual(1, config_used.get('log_level'))
 
     @patch.object(simple_virtuoso_migrate.main.Main, 'execute')
     @patch.object(simple_virtuoso_migrate.main.Main, '__init__', return_value=None)
     def test_it_should_get_configuration_exclusively_from_args_if_not_use_configuration_file_using_config_class_and_execute_with_default_configuration(self, main_mock, execute_mock):
-        run.run_from_argv(['--db-port', 'port', '--db-host', 'host', '--db-endpoint', 'name', '--db-user', 'user', '--db-password', 'pass', '--db-graph', 'graph', '--db-ontology', 'ontology', '--db-migrations-dir', '../migration:.:/tmp', '--log-dir', '../', '--file', 'temp_ttl_file.ttl', '--insert', 'data.ttl'])
+        run.run_from_argv(['--db-port', 'port',
+                           '--db-host', 'host',
+                           '--db-endpoint', 'name',
+                           '--db-user', 'user',
+                           '--db-password', 'pass',
+                           '--db-graph', 'graph',
+                           '--db-ontology', 'ontology',
+                           '--db-migrations-dir', '../migration:.:/tmp',
+                           '--log-dir', '../',
+                           '--file', 'temp_ttl_file.ttl'])
 
         self.assertEqual(1, execute_mock.call_count)
         execute_mock.assert_called_with()
 
         self.assertEqual(1, main_mock.call_count)
         config_used = main_mock.call_args[0][0]
-        self.assertTrue(isinstance(config_used, simple_virtuoso_migrate.config.Config))
+        self.assertIsInstance(config_used,
+                              simple_virtuoso_migrate.config.Config)
         self.assertEqual('user', config_used.get('database_user'))
         self.assertEqual('pass', config_used.get('database_password'))
         self.assertEqual('name', config_used.get('database_endpoint'))
@@ -155,13 +179,14 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
         self.assertEqual('port', config_used.get('database_port'))
         self.assertEqual('graph', config_used.get('database_graph'))
         self.assertEqual('ontology', config_used.get('database_ontology'))
-        self.assertEqual(os.path.abspath('../migration'), config_used.get("database_migrations_dir"))
+        self.assertEqual(os.path.abspath('../migration'),
+                         config_used.get("database_migrations_dir"))
         self.assertEqual(None, config_used.get('schema_version'))
         self.assertEqual(False, config_used.get('show_sparql'))
         self.assertEqual(False, config_used.get('show_sparql_only'))
         self.assertEqual('../', config_used.get('log_dir'))
-        self.assertEqual('temp_ttl_file.ttl', config_used.get('file_migration'))
-        self.assertEqual('data.ttl', config_used.get('add_ttl'))
+        self.assertEqual('temp_ttl_file.ttl',
+                         config_used.get('file_migration'))
         self.assertEqual(1, config_used.get('log_level'))
 
     @patch.object(simple_virtuoso_migrate.main.Main, 'execute')
@@ -172,16 +197,32 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
         config_used = main_mock.call_args[0][0]
         self.assertEqual(4, config_used.get('log_level'))
 
-    @patch('simple_virtuoso_migrate.run.getpass', return_value='password_asked')
+    @patch('simple_virtuoso_migrate.run.getpass',
+           return_value='password_asked')
     @patch('sys.stdout', new_callable=StringIO)
     @patch.object(simple_virtuoso_migrate.main.Main, 'execute')
-    @patch.object(simple_virtuoso_migrate.main.Main, '__init__', return_value=None)
-    @patch.object(simple_virtuoso_migrate.helpers.Utils, 'get_variables_from_file', return_value = {'DATABASE_HOST':'host', 'DATABASE_USER': 'root', 'DATABASE_PASSWORD':'<<ask_me>>', 'DATABASE_ENDPOINT':'database', 'DATABASE_MIGRATIONS_DIR':'.'})
-    def test_it_should_ask_for_password_when_configuration_is_as_ask_me(self, import_file_mock, main_mock, execute_mock, stdout_mock, getpass_mock):
+    @patch.object(simple_virtuoso_migrate.main.Main, '__init__',
+                  return_value=None)
+    @patch.object(simple_virtuoso_migrate.helpers.Utils,
+                  'get_variables_from_file',
+                  return_value={'DATABASE_HOST': 'host',
+                                'DATABASE_USER': 'root',
+                                'DATABASE_PASSWORD': '<<ask_me>>',
+                                'DATABASE_ENDPOINT': 'database',
+                                'DATABASE_MIGRATIONS_DIR': '.'})
+    def test_it_should_ask_for_password_when_configuration_is_as_ask_me(
+                                                            self,
+                                                            import_file_mock,
+                                                            main_mock,
+                                                            execute_mock,
+                                                            stdout_mock,
+                                                            getpass_mock):
         run.run_from_argv(["-c", os.path.abspath('sample.conf')])
         config_used = main_mock.call_args[0][0]
-        self.assertEqual('password_asked', config_used.get('database_password'))
-        self.assertEqual('\nPlease inform password to connect to virtuoso "root@host:database"\n', stdout_mock.getvalue())
+        self.assertEqual('password_asked',
+                         config_used.get('database_password'))
+        self.assertEqual('\nPlease inform password to connect to virtuoso (DATABASE) "root@host:database"\n',
+                         stdout_mock.getvalue())
 
     @patch.object(simple_virtuoso_migrate.main.Main, 'execute')
     @patch.object(simple_virtuoso_migrate.main.Main, '__init__', return_value=None)

@@ -82,7 +82,8 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
     def test_it_should_create_a_temporary_file_with_the_given_content(self):
         filename = None
         try:
-            filename = Utils.write_temporary_file('content', 'content_reference')
+            filename = Utils.write_temporary_file('content',
+                                                  'content_reference')
             self.assertTrue(filename.index('/tmp/') == 0)
             self.assertEqual(open(filename, "r").read(), 'content')
         finally:

@@ -3,6 +3,7 @@ from mock import patch
 from simple_virtuoso_migrate.cli import CLI
 import unittest
 
+
 class CLITest(unittest.TestCase):
 
     def setUp(self):
@@ -36,21 +37,25 @@ class CLITest(unittest.TestCase):
             CLI.parse(["-h"])
         except SystemExit, e:
             self.assertEqual(0, e.code)
-            self.assertTrue(stdout_mock.getvalue().find("Displays simple-virtuoso-migrate's version and exit") > 0)
+            self.assertTrue(stdout_mock.getvalue().find(
+                    "Displays simple-virtuoso-migrate's version and exit") > 0)
 
         stdout_mock.buf = ''
         try:
             CLI.parse(["--help"])
         except SystemExit, e:
             self.assertEqual(0, e.code)
-            self.assertTrue(stdout_mock.getvalue().find("Displays simple-virtuoso-migrate's version and exit") > 0)
+            self.assertTrue(stdout_mock.getvalue().find(
+                    "Displays simple-virtuoso-migrate's version and exit") > 0)
 
     def test_it_should_not_has_a_default_value_for_configuration_file(self):
         self.assertEqual(None, CLI.parse([])[0].config_file)
 
     def test_it_should_accept_configuration_file_options(self):
-        self.assertEqual("file.conf", CLI.parse(["-c", "file.conf"])[0].config_file)
-        self.assertEqual("file.conf", CLI.parse(["--config", "file.conf"])[0].config_file)
+        self.assertEqual("file.conf",
+                         CLI.parse(["-c", "file.conf"])[0].config_file)
+        self.assertEqual("file.conf",
+                         CLI.parse(["--config", "file.conf"])[0].config_file)
 
     def test_it_should_has_a_default_value_for_log_level(self):
         self.assertEqual(1, CLI.parse([])[0].log_level)
@@ -79,12 +84,12 @@ class CLITest(unittest.TestCase):
         self.assertEqual("file_migration_value", CLI.parse(["-f", "file_migration_value"])[0].file_migration)
         self.assertEqual("file_migration_value", CLI.parse(["--file", "file_migration_value"])[0].file_migration)
 
-    def test_it_should_not_has_a_default_value_for_add_ttl(self):
-        self.assertEqual(None, CLI.parse([])[0].add_ttl)
+    def test_it_should_not_has_a_default_value_for_load_ttl(self):
+        self.assertEqual(None, CLI.parse([])[0].load_ttl)
 
-    def test_it_should_accept_add_ttl_options(self):
-        self.assertEqual("add_ttl_value", CLI.parse(["-i", "add_ttl_value"])[0].add_ttl)
-        self.assertEqual("add_ttl_value", CLI.parse(["--insert", "add_ttl_value"])[0].add_ttl)
+    def test_it_should_accept_load_ttl_options(self):
+        self.assertEqual("load_ttl_value", CLI.parse(["-a", "load_ttl_value"])[0].load_ttl)
+        self.assertEqual("load_ttl_value", CLI.parse(["--add", "load_ttl_value"])[0].load_ttl)
 
     def test_it_should_has_a_default_value_for_simple_virtuoso_migrate_version(self):
         self.assertEqual(False, CLI.parse([])[0].simple_virtuoso_migrate_version)

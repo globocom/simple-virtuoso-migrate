@@ -40,7 +40,6 @@ def run(options):
         config.update('show_sparql', options.get('show_sparql'))
         config.update('show_sparql_only', options.get('show_sparql_only'))
         config.update('file_migration', options.get('file_migration'))
-        #config.update('add_ttl', options.get('add_ttl'))
         config.update('load_ttl', options.get('load_ttl'))
         config.update('log_dir', options.get('log_dir'))
         config.update('database_user', options.get('database_user'))
@@ -66,22 +65,22 @@ def run(options):
 
         # Ask the password for user if configured
         if config.get('database_password') == '<<ask_me>>':
-            CLI.msg('\nPlease inform password to connect to\
-                virtuoso (DATABASE) "%s@%s"' % (config.get('database_user'),
-                                                config.get('database_host')))
+            CLI.msg('\nPlease inform password to connect to '
+                    'virtuoso (DATABASE) "%s@%s:%s"' % (config.get('database_user'),
+                                                     config.get('database_host'),
+                                                     config.get('database_endpoint')))
             passwd = getpass()
             config.update('database_password', passwd)
 
         is_local = config.get('database_host', '').lower() in ["localhost",
                                                                "127.0.0.1"]
-        #import pdb; pdb.set_trace()
         if config.get('load_ttl') and\
                 config.get('virtuoso_dirs_allowed') is None and\
                 not is_local:
             if config.get('host_password') == '<<ask_me>>':
-                CLI.msg('\nPlease inform password to connect to\
-                virtuoso (HOST) "%s@%s"' % (config.get('host_user'),
-                                            config.get('database_host')))
+                CLI.msg('\nPlease inform password to connect to '
+                        'virtuoso (HOST) "%s@%s"' % (config.get('host_user'),
+                                                     config.get('database_host')))
                 passwd = getpass()
                 config.update('host_password', passwd)
         # If CLI was correctly parsed, execute db-virtuoso.
