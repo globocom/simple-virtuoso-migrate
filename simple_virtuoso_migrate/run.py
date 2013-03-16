@@ -40,6 +40,7 @@ def run(options):
         config.update('show_sparql', options.get('show_sparql'))
         config.update('show_sparql_only', options.get('show_sparql_only'))
         config.update('file_migration', options.get('file_migration'))
+        config.update('migration_graph', options.get('migration_graph'))
         config.update('load_ttl', options.get('load_ttl'))
         config.update('log_dir', options.get('log_dir'))
         config.update('database_user', options.get('database_user'))

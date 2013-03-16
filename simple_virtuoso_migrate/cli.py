@@ -100,16 +100,6 @@ class CLI(object):
                 default="",
                 help="Use this environment to get specific configurations."),
 
-        make_option("--db-user",
-                dest="database_user",
-                default=None,
-                help="Set the username to connect to database."),
-
-        make_option("--db-password",
-                dest="database_password",
-                default=None,
-                help="Set the password to connect to database."),
-
         make_option("--host-user",
                 dest="host_user",
                 default=None,
@@ -119,6 +109,16 @@ class CLI(object):
                 dest="host_password",
                 default=None,
                 help="Set the password to connect to host."),
+
+        make_option("--db-user",
+                dest="database_user",
+                default=None,
+                help="Set the username to connect to database."),
+
+        make_option("--db-password",
+                dest="database_password",
+                default=None,
+                help="Set the password to connect to database."),
 
         make_option("--db-host",
                 dest="database_host",
@@ -149,7 +149,13 @@ class CLI(object):
                 dest="database_migrations_dir",
                 default=None,
                 help="List of directories where migrations are separated by a\
-                      colon")
+                      colon"),
+
+        make_option("--migration-graph",
+                dest="migration_graph",
+                default=None,
+                help="Set the migration graph name."),
+
         )
 
     @classmethod
