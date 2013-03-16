@@ -90,7 +90,7 @@ class Main(object):
         current_version, origen = self.virtuoso.get_current_version()
         # Making the first migration to the database
         if current_version is None:
-            if self.config.get("file_migration") is not None:
+            if self.config.get("file_migration", None) is not None:
                 self._execution_log(("- Current version is: %s" %
                                                         current_version),
                                     "GREEN",
@@ -104,7 +104,7 @@ class Main(object):
                                    "use -m)")
         else:
             if origen == "file":
-                if self.config.get("file_migration") is not None:
+                if self.config.get("file_migration", None) is not None:
                     self._execution_log(("- Current version is: %s" %
                                                             current_version),
                                         "GREEN",
@@ -120,7 +120,7 @@ class Main(object):
             current_ontology = self.virtuoso.get_ontology_by_version(
                                                             current_version)
 
-        if self.config.get("file_migration") is not None:
+        if self.config.get("file_migration", None) is not None:
             source = 'file'
             destination_version = self.config.get("file_migration")
             destination_ontology = self.virtuoso.get_ontology_from_file(
@@ -144,7 +144,7 @@ class Main(object):
     def _get_destination_version(self):
         """ get destination version """
 
-        destination_version = self.config.get("schema_version")
+        destination_version = self.config.get("schema_version", None)
         if destination_version is None:
             destination_version = (
                             self.virtuoso_migrate.latest_version_available())
@@ -218,9 +218,6 @@ class Main(object):
                             'database_port',
                             'database_graph',
                             'database_ontology',
-                            'file_migration',
-                            'host_user',
-                            'host_password',
                             'migration_graph']
 
         for key in required_configs:

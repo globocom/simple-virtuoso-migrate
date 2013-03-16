@@ -88,43 +88,7 @@ class MainTest(BaseTest):
                                              'database_migrations_dir': '',
                                              'database_port': '',
                                              'database_graph': ''}))
-        self.assertRaisesWithMessage(Exception,
-                                     "invalid key ('file_migration')",
-                                     Main,
-                                     Config({'database_host': '',
-                                             'database_endpoint': '',
-                                             'database_user': '',
-                                             'database_password': '',
-                                             'database_migrations_dir': '',
-                                             'database_port': '',
-                                             'database_graph': '',
-                                             'database_ontology': ''}))
 
-        self.assertRaisesWithMessage(Exception,
-                                     "invalid key ('host_user')",
-                                     Main,
-                                     Config({'database_host': '',
-                                             'database_endpoint': '',
-                                             'database_user': '',
-                                             'database_password': '',
-                                             'database_migrations_dir': '',
-                                             'database_port': '',
-                                             'database_graph': '',
-                                             'database_ontology': '',
-                                             'file_migration': ''}))
-        self.assertRaisesWithMessage(Exception,
-                                     "invalid key ('host_password')",
-                                     Main,
-                                     Config({'database_host': '',
-                                             'database_endpoint': '',
-                                             'database_user': '',
-                                             'database_password': '',
-                                             'database_migrations_dir': '',
-                                             'database_port': '',
-                                             'database_graph': '',
-                                             'database_ontology': '',
-                                             'file_migration': '',
-                                             'host_user': ''}))
         self.assertRaisesWithMessage(Exception,
                                      "invalid key ('migration_graph')",
                                      Main,
@@ -135,10 +99,7 @@ class MainTest(BaseTest):
                                              'database_migrations_dir': '',
                                              'database_port': '',
                                              'database_graph': '',
-                                             'database_ontology': '',
-                                             'file_migration': '',
-                                             'host_user': '',
-                                             'host_password': ''}))
+                                             'database_ontology': ''}))
 
     @patch('simple_virtuoso_migrate.main.SimpleVirtuosoMigrate')
     @patch('simple_virtuoso_migrate.main.LOG')

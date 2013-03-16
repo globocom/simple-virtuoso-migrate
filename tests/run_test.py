@@ -24,6 +24,7 @@ DATABASE_MIGRATIONS_DIR = 'example'
 DATABASE_ANY_CUSTOM_VARIABLE = 'Some Value'
 SOME_ENV_DATABASE_ANY_CUSTOM_VARIABLE = 'Other Value'
 DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
+MIGRATION_GRAPH = 'migration_graph_example
 '''
         create_file('sample.conf', config_file)
 
@@ -143,12 +144,8 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
         self.assertEqual('graph', config_used.get('database_graph'))
         self.assertEqual('ontology', config_used.get('database_ontology'))
         self.assertEqual(os.path.abspath('.'), config_used.get("database_migrations_dir"))
-        self.assertEqual(None, config_used.get('schema_version'))
         self.assertEqual(False, config_used.get('show_sparql'))
         self.assertEqual(False, config_used.get('show_sparql_only'))
-        self.assertEqual(None, config_used.get('log_dir'))
-        self.assertEqual(None, config_used.get('file_migration'))
-        self.assertEqual(None, config_used.get('load_ttl'))
         self.assertEqual(1, config_used.get('log_level'))
 
     @patch.object(simple_virtuoso_migrate.main.Main, 'execute')
@@ -181,7 +178,6 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
         self.assertEqual('ontology', config_used.get('database_ontology'))
         self.assertEqual(os.path.abspath('../migration'),
                          config_used.get("database_migrations_dir"))
-        self.assertEqual(None, config_used.get('schema_version'))
         self.assertEqual(False, config_used.get('show_sparql'))
         self.assertEqual(False, config_used.get('show_sparql_only'))
         self.assertEqual('../', config_used.get('log_dir'))

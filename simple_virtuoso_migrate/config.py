@@ -33,7 +33,8 @@ class Config(object):
             value = self.get(config_key)
             self.remove(config_key)
             config_value = config_value or value
-        self.put(config_key, config_value)
+        if config_value is not None:
+            self.put(config_key, config_value)
 
     def remove(self, config_key):
         """ Remove config_key from config file if it is there  """

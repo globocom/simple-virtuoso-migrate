@@ -75,8 +75,8 @@ def run(options):
 
         is_local = config.get('database_host', '').lower() in ["localhost",
                                                                "127.0.0.1"]
-        if config.get('load_ttl') and\
-                config.get('virtuoso_dirs_allowed') is None and\
+        if config.get('load_ttl', None) and\
+                config.get('virtuoso_dirs_allowed', None) is None and\
                 not is_local:
             if config.get('host_password') == '<<ask_me>>':
                 CLI.msg('\nPlease inform password to connect to '
