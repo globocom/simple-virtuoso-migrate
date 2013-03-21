@@ -92,12 +92,28 @@ class VirtuosoTest(BaseTest):
 #        self.assertEqual('out\n', stdout)
 #        self.assertEqual('python', stderr.split(' ')[0].lower())
 
-#    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso.command_call', return_value=('', ''))
-#    def test_it_should_use_isql_executable_to_connect_to_virtuoso(self, command_call_mock):
-#        virtuoso = Virtuoso(self.config)
-#        conn = virtuoso.connect()
-#        self.assertEqual('isql -U user -P password -H localhost -S 9999 < ', conn)
-#        command_call_mock.assert_called_with('echo "status();"| isql -U user -P password -H localhost -S 9999 ')
+    @patch('subprocess.Popen.communicate', return_value=("", ""))
+    @patch('subprocess.Popen.__init__', return_value=None)
+    def test_it_should_use_isql_executable_to_send_commands_to_virtuoso(self, popen_mock, communicate_mock):
+        virtuoso = Virtuoso(self.config)
+        virtuoso._run_isql("command")
+        popen_mock.assert_called_with('echo "command" | isql -U user -P password -H localhost -S 9999 -b 1', shell=True, stderr=-1, stdout=-1)
+
+    @patch('subprocess.Popen.communicate', return_value=("", ""))
+    @patch('subprocess.Popen.__init__', return_value=None)
+    def test_it_should_set_the_command_buffer_size_on_isql_calls_to_support_large_commands(self, popen_mock, communicate_mock):
+        virtuoso = Virtuoso(self.config)
+        cmd = "0123456789" * 250000
+        virtuoso._run_isql(cmd)
+        popen_mock.assert_called_with('echo "%s" | isql -U user -P password -H localhost -S 9999 -b 2500' % cmd, shell=True, stderr=-1, stdout=-1)
+
+    @patch('subprocess.Popen.communicate', return_value=("", ""))
+    @patch('subprocess.Popen.__init__', return_value=None)
+    def test_it_should_use_file_size_as_the_command_buffer_size_on_isql_calls(self, popen_mock, communicate_mock):
+        virtuoso = Virtuoso(self.config)
+        create_file("big_file.ttl", "0123456789" * 480000)
+        virtuoso._run_isql("big_file.ttl", True)
+        popen_mock.assert_called_with('isql -U user -P password -H localhost -S 9999 -b 4800 < "big_file.ttl"', shell=True, stderr=-1, stdout=-1)
 
 #    @patch('simple_virtuoso_migrate.virtuoso.Virtuoso.command_call',
 #           return_value=('', 'some error'))

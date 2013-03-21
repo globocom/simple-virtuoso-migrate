@@ -16,7 +16,8 @@ import subprocess
 logging.basicConfig()
 
 ISQL = "isql -U %s -P %s -H %s -S %s"
-ISQL_CMD = 'echo "%s" | %s'
+ISQL_CMD = 'echo "%s" | %s -b %d'
+ISQL_CMD_WITH_FILE = '%s -b %d < "%s"'
 ISQL_UP = "set echo on;\n\
             DB.DBA.TTLP_MT_LOCAL_FILE('%(ttl)s', '', '%(graph)s');"
 ISQL_DOWN = "SPARQL CLEAR GRAPH <%(graph)s>;"
@@ -52,9 +53,9 @@ class Virtuoso(object):
                        self.__virtuoso_host,
                        self.__virtuoso_port)
         if archive:
-            isql_cmd = conn + ' < ' + cmd
+            isql_cmd = ISQL_CMD_WITH_FILE % (conn, max(os.path.getsize(cmd) / 1000, 1), cmd)
         else:
-            isql_cmd = ISQL_CMD % (cmd, conn)
+            isql_cmd = ISQL_CMD % (cmd, conn, max(len(cmd) / 1000, 1))
         process = subprocess.Popen(isql_cmd,
                                    shell=True,
                                    stdout=subprocess.PIPE,
