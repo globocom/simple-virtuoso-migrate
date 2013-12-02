@@ -37,3 +37,4 @@ nosetests.xml
 
 #MacOS
 .DS_Store
+.idea
