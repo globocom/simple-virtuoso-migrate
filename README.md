@@ -77,23 +77,23 @@ You can create a configuration file and inform it at command line using "-c <fil
     DATABASE_HOST             Virtuoso instance host's name
     DATABASE_USER             Your database login name
     DATABASE_PASSWORD         Your database password.
-                              In some cases you will not want to write database passwords in the config files 
-                              (e.g. production databases passwords). You can configure the password to be asked 
+                              In some cases you will not want to write database passwords in the config files
+                              (e.g. production databases passwords). You can configure the password to be asked
                               for you in the command line setting up this parameter with "<<ask_me>>".
     DATABASE_PORT             Virtuoso isql's port
     DATABASE_ENDPOINT         Sparql endpoit address . "http://localhost:8890/sparql"
     DATABASE_GRAPH            Graph name
     DATABASE_MIGRATIONS_DIR   Absolute path of the ontology ttl file.
     DATABASE_ONTOLOGY         Ontology ttl file name.
-    VIRTUOSO_DIRS_ALLOWED     This option exists to be used with "-a" option. It must be the same directory 
+    VIRTUOSO_DIRS_ALLOWED     This option exists to be used with "-a" option. It must be the same directory
                               configured for the Virtuoso Server in the parameter DirsAlowed of virtuoso.ini.
-    MIGRATION_GRAPH           Name of the graph that keeps migration's information. 
+    MIGRATION_GRAPH           Name of the graph that keeps migration's information.
 
 
 Querying your migrations
 -----
 
-Migration history is keeped on the graph <http://migration.example.com/>.
+Migration history is kept on the graph <http://migration.example.com/>.
 
 Data properties description:
 
@@ -108,7 +108,7 @@ Data properties description:
 Useful queries:
 ---
 
-Listing all migrations performed on graph http://example.com/class/ 
+Listing all migrations performed on graph http://example.com/class/
 during the period between 2012-06-30 and 2012-07-03 (using xsd:dateTime)
 
 ```sql
@@ -123,7 +123,7 @@ WHERE {
         mig:endpoint  ?endpoint;
         mig:ambiente  ?env;
         mig:usuario   ?user.
-    FILTER ( ?when > "2012-06-30T00:00:00"^^xsd:dateTime && 
+    FILTER ( ?when > "2012-06-30T00:00:00"^^xsd:dateTime &&
              ?when < "2012-07-03T00:00:00"^^xsd:dateTime ).
 } ORDER BY ?when
 ```
