@@ -84,7 +84,6 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
         try:
             filename = Utils.write_temporary_file('content',
                                                   'content_reference')
-            self.assertTrue(filename.index('/tmp/') == 0)
             self.assertEqual(open(filename, "r").read(), 'content')
         finally:
             if filename and os.path.exists(filename):

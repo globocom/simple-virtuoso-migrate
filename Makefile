@@ -33,6 +33,7 @@ test: compile
 
 install:
 	@/usr/bin/env python ./setup.py install
+	@pip install -r requirements_test.txt
 
 build:
 	@/usr/bin/env python ./setup.py build
