@@ -1,4 +1,5 @@
 import os
+import sys
 from cli import CLI
 from log import LOG
 from core import SimpleVirtuosoMigrate
@@ -10,11 +11,20 @@ class Main(object):
     """ Call all execution modules """
 
     def __init__(self, config):
+
+        if not Main._valid_version():
+            print "You need to upgrade your Python version from %s to 2.7.x" % sys.version
+            sys.exit(0)
+
         Main._check_configuration(config)
         self.config = config
         self.virtuoso = Virtuoso(config)
         self.virtuoso_migrate = SimpleVirtuosoMigrate(config)
         self.log = LOG(self.config.get("log_dir", None))
+
+    @staticmethod
+    def _valid_version():
+        return sys.version_info[0] == 2  and sys.version_info[1] >= 7
 
     def execute(self):
         """ evaluate what action to take from command line options """
@@ -212,7 +222,15 @@ class Main(object):
         self.log.debug(msg)
 
     def _run_after(self, script_name):
-        pass
+        module = open(script_name, "r").read()
+        sandbox = {}
+        exec(module, sandbox)
+        try:
+            run_after_func = sandbox['run_after']
+            run_after_func(self)
+        except KeyError:
+            self._execution_log("\nRun after script %s does not have run_after() function .\n" % script_name,
+                                "PINK", log_level_limit=1)
 
     @staticmethod
     def _check_configuration(config):
