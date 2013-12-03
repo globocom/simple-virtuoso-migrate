@@ -190,9 +190,8 @@ ORDER BY desc(?data) LIMIT 1
 
         for triples in diff:
             subject, predicate, object_ = triples
-            triples_insert_l1 = ""
-            triples_insert_l2 = ""
-            query_1 = """\
+
+            query_get_blank_node = """\
             prefix owl: <http://www.w3.org/2002/07/owl#>
             prefix xsd: <http://www.w3.org/2001/XMLSchema#>
             SELECT ?s WHERE
@@ -201,35 +200,42 @@ ORDER BY desc(?data) LIMIT 1
             if isinstance(subject, rdflib.term.BNode) and (
                                                     not subject in checked):
                 checked.add(subject)
-                for sub_pred in diff.subject_predicates(subject):
-                    query_1 = query_1 + "%s %s ?s . " % (sub_pred[0].n3(),
-                                                         sub_pred[1].n3())
-                    triples_insert_l1 = triples_insert_l1 + "%s %s " % (
-                                                              sub_pred[0].n3(),
-                                                              sub_pred[1].n3())
 
-                for pred_obj in diff.predicate_objects(subject):
-                    query_1 = query_1 + "?s %s %s . " % (pred_obj[0].n3(),
+                blank_node_as_an_object = ""
+                triples_with_blank_node_as_object = diff.subject_predicates(subject)
+                for triple_subject, triple_object in triples_with_blank_node_as_object:
+                    query_get_blank_node = query_get_blank_node + "%s %s ?s . " % (triple_subject.n3(),
+                                                         triple_object.n3())
+                    blank_node_as_an_object = blank_node_as_an_object + "%s %s " % (
+                                                              triple_subject.n3(),
+                                                              triple_object.n3())
+
+                blank_node_as_a_subject = ""
+                triples_with_blank_node_as_subject = diff.predicate_objects(subject)
+                for pred_obj in triples_with_blank_node_as_subject:
+                    query_get_blank_node = query_get_blank_node + "?s %s %s . " % (pred_obj[0].n3(),
                                                          pred_obj[1].n3())
-                    triples_insert_l2 = triples_insert_l2 + "%s %s ; " % (
+                    blank_node_as_a_subject = blank_node_as_a_subject + "%s %s ; " % (
                                                             pred_obj[0].n3(),
                                                             pred_obj[1].n3())
-                query_1 = query_1 + "}"
+                query_get_blank_node = query_get_blank_node + "}"
 
-                qres_1 = destination_store.query(query_1)
+                qres_1 = destination_store.query(query_get_blank_node)
+
                 if len(qres_1) <= 0:
                     forward_migration = forward_migration + \
                         u"\nSPARQL INSERT INTO <%s> { %s[%s] };" % (
                                                             self.__virtuoso_graph,
-                                                            triples_insert_l1,
-                                                            triples_insert_l2)
-                    triples_insert_l2 = triples_insert_l2[:-2]
+                                                            blank_node_as_an_object,
+                                                            blank_node_as_a_subject)
+                    blank_node_as_a_subject = blank_node_as_a_subject[:-2]
+
                     backward_migration = backward_migration + \
                     (u"\nSPARQL DELETE FROM <%s> { %s ?s. ?s %s } WHERE "
-                    "{ %s ?s. ?s %s };") % (self.__virtuoso_graph, triples_insert_l1,
-                                           triples_insert_l2,
-                                           triples_insert_l1,
-                                           triples_insert_l2)
+                    "{ %s ?s. ?s %s };") % (self.__virtuoso_graph, blank_node_as_an_object,
+                                           blank_node_as_a_subject,
+                                           blank_node_as_an_object,
+                                           blank_node_as_a_subject)
 
             if isinstance(subject, rdflib.term.URIRef) and \
                         not isinstance(object_, rdflib.term.BNode):
