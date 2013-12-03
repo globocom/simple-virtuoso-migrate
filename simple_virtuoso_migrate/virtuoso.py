@@ -182,7 +182,7 @@ ORDER BY desc(?data) LIMIT 1
             return None, None
 
     def _generate_migration_sparql_commands(self, origin_store,
-                                            destination_store, graph):
+                                            destination_store):
         diff = (origin_store - destination_store) or []
         checked = set()
         forward_migration = ""
@@ -219,13 +219,13 @@ ORDER BY desc(?data) LIMIT 1
                 if len(qres_1) <= 0:
                     forward_migration = forward_migration + \
                         u"\nSPARQL INSERT INTO <%s> { %s[%s] };" % (
-                                                            graph,
+                                                            self.__virtuoso_graph,
                                                             triples_insert_l1,
                                                             triples_insert_l2)
                     triples_insert_l2 = triples_insert_l2[:-2]
                     backward_migration = backward_migration + \
                     (u"\nSPARQL DELETE FROM <%s> { %s ?s. ?s %s } WHERE "
-                    "{ %s ?s. ?s %s };") % (graph, triples_insert_l1,
+                    "{ %s ?s. ?s %s };") % (self.__virtuoso_graph, triples_insert_l1,
                                            triples_insert_l2,
                                            triples_insert_l1,
                                            triples_insert_l2)
@@ -234,10 +234,10 @@ ORDER BY desc(?data) LIMIT 1
                         not isinstance(triples[2], rdflib.term.BNode):
                 forward_migration = forward_migration + \
                                 u"\nSPARQL INSERT INTO <%s> {%s %s %s . };"\
-                                % (graph, triples[0].n3(), triples[1].n3(),
+                                % (self.__virtuoso_graph, triples[0].n3(), triples[1].n3(),
                                    triples[2].n3())
                 backward_migration = backward_migration + \
-                    u"\nSPARQL DELETE FROM <%s> {%s %s %s . };" % (graph,
+                    u"\nSPARQL DELETE FROM <%s> {%s %s %s . };" % (self.__virtuoso_graph,
                                                             triples[0].n3(),
                                                             triples[1].n3(),
                                                             triples[2].n3())
@@ -267,15 +267,13 @@ ORDER BY desc(?data) LIMIT 1
             forward_migration, backward_migration = (
                             self._generate_migration_sparql_commands(
                                                         destination_graph,
-                                                        current_graph,
-                                                        self.__virtuoso_graph))
+                                                        current_graph))
             query_up += forward_migration
             query_down += backward_migration
             forward_migration, backward_migration = (
                             self._generate_migration_sparql_commands(
                                                         current_graph,
-                                                        destination_graph,
-                                                        self.__virtuoso_graph))
+                                                        destination_graph))
             query_down += forward_migration
             query_up += backward_migration
 
