@@ -156,6 +156,10 @@ class CLI(object):
                 default=None,
                 help="Set the migration graph name."),
 
+        make_option("--run-after",
+                dest="run_after",
+                default=None,
+                help="Import python module and execute function with the name run_after after applying changes."),
         )
 
     @classmethod

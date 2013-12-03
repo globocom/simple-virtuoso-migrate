@@ -27,6 +27,14 @@ class Main(object):
             self._load_triples()
         else:
             self._migrate()
+
+        run_after_script = self.config.get('run_after', None)
+        if run_after_script:
+            self._execution_log("\nExecuting run_after script %s.\n" % run_after_script,
+                                "PINK",
+                                log_level_limit=1)
+            self._run_after(run_after_script)
+
         self._execution_log("\nDone.\n", "PINK", log_level_limit=1)
 
     def _load_triples(self):
@@ -71,7 +79,7 @@ class Main(object):
             if ok_list:
                 sparql_up, sparql_down = self.virtuoso.get_sparql(None,
                                                                   None,
-                                                            current_version,
+                                                                  current_version,
                                                                   None,
                                                                   origen,
                                                                   ok_list)
@@ -117,8 +125,7 @@ class Main(object):
                                        "File (TIP: version it using git --tag "
                                        "and then use -m)")
 
-            current_ontology = self.virtuoso.get_ontology_by_version(
-                                                            current_version)
+            current_ontology = self.virtuoso.get_ontology_by_version(current_version)
 
         if self.config.get("file_migration", None) is not None:
             source = 'file'
@@ -203,6 +210,9 @@ class Main(object):
         if self.config.get("log_level", 1) >= log_level_limit:
             CLI.msg(msg, color)
         self.log.debug(msg)
+
+    def _run_after(self, script_name):
+        pass
 
     @staticmethod
     def _check_configuration(config):

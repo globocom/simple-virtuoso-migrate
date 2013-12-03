@@ -132,6 +132,16 @@ class MainTest(BaseTest):
                                      config={})
 
     @patch('simple_virtuoso_migrate.main.Main._execution_log')
+    @patch('simple_virtuoso_migrate.main.Main._run_after')
+    @patch('simple_virtuoso_migrate.main.Main._load_triples')
+    def test_it_should_call_run_after_script_after_calling_execute(self, load_triples_mock, run_after_mock, execution_log_mock):
+        self.initial_config.update({'load_ttl':'', 'run_after': 'some_script_name'})
+        main = Main(Config(self.initial_config))
+        main.execute()
+        self.assertEqual(execution_log_mock.call_count, 3)
+        run_after_mock.assert_called_with('some_script_name')
+
+    @patch('simple_virtuoso_migrate.main.Main._execution_log')
     @patch('simple_virtuoso_migrate.main.Virtuoso.execute_change')
     @patch('simple_virtuoso_migrate.main.Virtuoso.get_current_version', return_value=(None, None))
     @patch('simple_virtuoso_migrate.main.Virtuoso._run_isql', return_value=("", ""))

@@ -153,6 +153,9 @@ class CLITest(unittest.TestCase):
     def test_it_should_accept_database_endpoint_options(self):
         self.assertEqual("endpoint_value", CLI.parse(["--db-endpoint", "endpoint_value"])[0].database_endpoint)
 
+    def test_it_should_accept_run_after_options(self):
+        self.assertEqual("script_name", CLI.parse(["--run-after", "script_name"])[0].run_after)
+
     def test_it_should_not_has_a_default_value_for_database_graph(self):
         self.assertEqual(None, CLI.parse([])[0].database_graph)
 
