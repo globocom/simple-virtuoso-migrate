@@ -5,7 +5,7 @@ Simple Virtuoso migrate "quick" documentation
 Quick start
 ---
 
-simple-virtuoso-migrate is damn simple. The best way to understand how it works is installing and using it.
+simple-virtuoso-migrate is very simple. The best way to understand how it works is installing and using it.
 
 You can install it by :
 
@@ -22,7 +22,7 @@ $ virtuoso-migrate --help
 Understanding how it works
 ---
 
-virtuoso-migrate is a ontology versioning and migration tool inspired on simple-db-migrate.
+virtuoso-migrate is an ontology versioning and migration tool inspired on simple-db-migrate.
 
 This tool helps you to manage and track your ontology changes.
 
