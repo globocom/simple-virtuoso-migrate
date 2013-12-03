@@ -189,6 +189,7 @@ ORDER BY desc(?data) LIMIT 1
         backward_migration = ""
 
         for triples in diff:
+            subject, predicate, object_ = triples
             triples_insert_l1 = ""
             triples_insert_l2 = ""
             query_1 = """\
@@ -197,17 +198,17 @@ ORDER BY desc(?data) LIMIT 1
             SELECT ?s WHERE
             {
                 """
-            if isinstance(triples[0], rdflib.term.BNode) and (
-                                                    not triples[0] in checked):
-                checked.add(triples[0])
-                for sub_pred in diff.subject_predicates(triples[0]):
+            if isinstance(subject, rdflib.term.BNode) and (
+                                                    not subject in checked):
+                checked.add(subject)
+                for sub_pred in diff.subject_predicates(subject):
                     query_1 = query_1 + "%s %s ?s . " % (sub_pred[0].n3(),
                                                          sub_pred[1].n3())
                     triples_insert_l1 = triples_insert_l1 + "%s %s " % (
                                                               sub_pred[0].n3(),
                                                               sub_pred[1].n3())
 
-                for pred_obj in diff.predicate_objects(triples[0]):
+                for pred_obj in diff.predicate_objects(subject):
                     query_1 = query_1 + "?s %s %s . " % (pred_obj[0].n3(),
                                                          pred_obj[1].n3())
                     triples_insert_l2 = triples_insert_l2 + "%s %s ; " % (
@@ -230,17 +231,17 @@ ORDER BY desc(?data) LIMIT 1
                                            triples_insert_l1,
                                            triples_insert_l2)
 
-            if isinstance(triples[0], rdflib.term.URIRef) and \
-                        not isinstance(triples[2], rdflib.term.BNode):
+            if isinstance(subject, rdflib.term.URIRef) and \
+                        not isinstance(object_, rdflib.term.BNode):
                 forward_migration = forward_migration + \
                                 u"\nSPARQL INSERT INTO <%s> {%s %s %s . };"\
-                                % (self.__virtuoso_graph, triples[0].n3(), triples[1].n3(),
-                                   triples[2].n3())
+                                % (self.__virtuoso_graph, subject.n3(), predicate.n3(),
+                                   object_.n3())
                 backward_migration = backward_migration + \
                     u"\nSPARQL DELETE FROM <%s> {%s %s %s . };" % (self.__virtuoso_graph,
-                                                            triples[0].n3(),
-                                                            triples[1].n3(),
-                                                            triples[2].n3())
+                                                            subject.n3(),
+                                                            predicate.n3(),
+                                                            object_.n3())
 
         return forward_migration, backward_migration
 
