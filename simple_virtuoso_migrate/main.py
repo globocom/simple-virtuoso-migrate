@@ -38,7 +38,7 @@ class Main(object):
         else:
             self._migrate()
 
-        run_after_script = self.config.get('run_after', None)
+        run_after_script = self.config.get('RUN_AFTER', None)
         if run_after_script:
             self._execution_log("\nExecuting run_after script %s.\n" % run_after_script,
                                 "PINK",

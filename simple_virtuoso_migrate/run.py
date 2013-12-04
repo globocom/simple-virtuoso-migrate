@@ -66,6 +66,9 @@ def run(options):
                       config.get("database_migrations_dir")[0])
         config.update('log_level', int(options.get('log_level')))
 
+        if options.get('run_after'):
+            config.update('run_after', options.get('run_after'))
+
         # Ask the password for user if configured
         if config.get('database_password') == '<<ask_me>>':
             CLI.msg('\nPlease inform password to connect to '
