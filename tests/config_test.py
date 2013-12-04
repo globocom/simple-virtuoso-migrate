@@ -175,6 +175,7 @@ UTC_TIMESTAMP = True
 DATABASE_ANY_CUSTOM_VARIABLE = 'Some Value'
 SOME_ENV_DATABASE_ANY_CUSTOM_VARIABLE = 'Other Value'
 DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
+RUN_AFTER = './some_dummy_action.py'
 '''
         create_file('sample.conf', "%s\nDATABASE_MIGRATIONS_DIR = 'example'" % config_file)
         create_file('sample2.conf', "%s" % config_file)
@@ -197,6 +198,7 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
         self.assertEquals(config.get('database_name'), 'migration_example')
         self.assertEquals(config.get("database_migrations_dir"), [os.path.abspath('example')])
         self.assertEquals(config.get('utc_timestamp'), True)
+        self.assertEquals(config.get('run_after'), './some_dummy_action.py')
 
     def test_it_should_use_configuration_by_environment(self):
         config_path = os.path.abspath('sample.conf')
