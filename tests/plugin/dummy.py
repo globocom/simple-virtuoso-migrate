@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+# This is an example of how to write a post-migration script
+# that is used to notify some server to purge its cache
 
 def run_after(main):
     import urllib2
@@ -15,15 +17,16 @@ def run_after(main):
     else:
         print "Notification to clean cache was successful"
 
-def run_after_CLEAN_BY_GRAPH(main):
-    graph_uri = main.config.get('database_graph')
 
-    import urllib2
-    opener = urllib2.build_opener(urllib2.HTTPHandler)
-    BRAINIAK_ENDPOINT = 'http://localhost:5100/_?graph_uri={0}'
-    purge_url = BRAINIAK_ENDPOINT.format(graph_uri)
-
-    request = urllib2.Request(purge_url)
-    request.add_header('X-Cache-Recursive', '1')
-    request.get_method = lambda: 'PURGE'
-    url = opener.open(request)
+#def run_after(main):
+#    graph_uri = main.config.get('database_graph')
+#
+#    import urllib2
+#    opener = urllib2.build_opener(urllib2.HTTPHandler)
+#    BRAINIAK_ENDPOINT = 'http://localhost:5100/_?graph_uri={0}'
+#    purge_url = BRAINIAK_ENDPOINT.format(graph_uri)
+#
+#    request = urllib2.Request(purge_url)
+#    request.add_header('X-Cache-Recursive', '1')
+#    request.get_method = lambda: 'PURGE'
+#    url = opener.open(request)
