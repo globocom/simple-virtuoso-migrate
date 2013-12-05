@@ -342,8 +342,7 @@ ORDER BY desc(?data) LIMIT 1
             raise Exception('migration file does not exist (%s)' % file_name)
         return Git(self._migrations_dir).execute(["git",
                                                   "show",
-                                                  version + ":" +\
-                                                    self.__virtuoso_ontology])
+                                                  version + ":" + self.__virtuoso_ontology])
 
     def get_ontology_from_file(self, filename):
         if not os.path.exists(filename):
