@@ -24,7 +24,8 @@ DATABASE_MIGRATIONS_DIR = 'example'
 DATABASE_ANY_CUSTOM_VARIABLE = 'Some Value'
 SOME_ENV_DATABASE_ANY_CUSTOM_VARIABLE = 'Other Value'
 DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
-MIGRATION_GRAPH = 'migration_graph_example
+MIGRATION_GRAPH = 'migration_graph_example'
+RUN_AFTER = './some_dummy_action.py'
 '''
         create_file('sample.conf', config_file)
 
@@ -160,6 +161,7 @@ MIGRATION_GRAPH = 'migration_graph_example
                            '--db-ontology', 'ontology',
                            '--db-migrations-dir', '../migration:.:/tmp',
                            '--log-dir', '../',
+                           '--run-after', 'some_dummy.py',
                            '--file', 'temp_ttl_file.ttl'])
 
         self.assertEqual(1, execute_mock.call_count)
@@ -184,6 +186,7 @@ MIGRATION_GRAPH = 'migration_graph_example
         self.assertEqual('temp_ttl_file.ttl',
                          config_used.get('file_migration'))
         self.assertEqual(1, config_used.get('log_level'))
+        self.assertEqual('some_dummy.py', config_used.get('run_after'))
 
     @patch.object(simple_virtuoso_migrate.main.Main, 'execute')
     @patch.object(simple_virtuoso_migrate.main.Main, '__init__', return_value=None)

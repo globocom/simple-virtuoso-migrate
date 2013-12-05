@@ -7,9 +7,11 @@ import codecs
 import sys
 
 # fixing print in non-utf8 terminals
-if sys.stdout.encoding != 'UTF-8':
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
-
+try:
+    if sys.stdout.encoding != 'UTF-8':
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+except AttributeError:
+    pass  # This may happen when executing tests inside an IDE that replaces sys.stdout for an StringIO
 
 def run_from_argv(args=sys.argv[1:]):
     if not args:
@@ -63,6 +65,9 @@ def run(options):
         config.update("database_migrations_dir",
                       config.get("database_migrations_dir")[0])
         config.update('log_level', int(options.get('log_level')))
+
+        if options.get('run_after'):
+            config.update('run_after', options.get('run_after'))
 
         # Ask the password for user if configured
         if config.get('database_password') == '<<ask_me>>':

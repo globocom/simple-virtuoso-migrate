@@ -101,6 +101,16 @@ class MainTest(BaseTest):
                                              'database_graph': '',
                                              'database_ontology': ''}))
 
+
+    @patch('sys.version_info', return_value=(2, 5, 2, 'final', 0))
+    def test_detect_invalid_python_version(self, mock_sys_version_info):
+        self.assertFalse(Main._valid_version())
+
+    @patch('sys.version_info', return_value=(2, 5, 2, 'final', 0))
+    def test_exit_if_invalid_python_version(self, mock_sys_version_info):
+        self.assertFalse(Main._valid_version())
+        self.assertRaises(SystemExit, Main, None)
+
     @patch('simple_virtuoso_migrate.main.SimpleVirtuosoMigrate')
     @patch('simple_virtuoso_migrate.main.LOG')
     @patch('simple_virtuoso_migrate.main.CLI')
@@ -130,6 +140,33 @@ class MainTest(BaseTest):
                                      "config must be an instance of simple_virtuoso_migrate.config.Config",
                                      Main,
                                      config={})
+
+    @patch('simple_virtuoso_migrate.main.Main._execution_log')
+    @patch('simple_virtuoso_migrate.main.Main._run_after')
+    @patch('simple_virtuoso_migrate.main.Main._load_triples', return_value=None)
+    def test_it_should_call_run_after_method_after_calling_execute(self, load_triples_mock, run_after_mock, execution_log_mock):
+        self.initial_config.update({'load_ttl':'', 'run_after': 'some_script_name'})
+        main = Main(Config(self.initial_config))
+        main.execute()
+        self.assertEqual(execution_log_mock.call_count, 3)
+        run_after_mock.assert_called_with('some_script_name', None)
+
+    @patch('simple_virtuoso_migrate.main.Main._execution_log')
+    @patch('simple_virtuoso_migrate.main.Main._load_triples', return_value=None)
+    @patch('simple_virtuoso_migrate.main.Main._valid_version')
+    def test_should_exec_and_call_run_after_script(self, valid_version_mock, load_triples_mock, execution_log_mock):
+        self.initial_config.update({'load_ttl':'', 'run_after': 'tests/samples/validate_run_after.py'})
+        main = Main(Config(self.initial_config))
+        main.execute()
+        self.assertEqual(valid_version_mock.call_count, 2)
+
+    @patch('simple_virtuoso_migrate.main.Main._execution_log')
+    @patch('simple_virtuoso_migrate.main.Main._load_triples')
+    def test_should_exec_and_fail_with_invalid_after_script(self, load_triples_mock, execution_log_mock):
+        self.initial_config.update({'load_ttl':'', 'run_after': 'tests/samples/invalid_run_after.py'})
+        main = Main(Config(self.initial_config))
+        main.execute()
+        execution_log_mock.mock_calls[-2].called_with('\nRun after script tests/samples/invalid_run_after.py does not have run_after() function .\n', 'PINK', 1)
 
     @patch('simple_virtuoso_migrate.main.Main._execution_log')
     @patch('simple_virtuoso_migrate.main.Virtuoso.execute_change')

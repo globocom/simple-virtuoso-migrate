@@ -3,6 +3,7 @@ import unittest
 from simple_virtuoso_migrate.config import Config, FileConfig
 from tests import create_file, delete_files
 
+
 class ConfigTest(unittest.TestCase):
 
     def test_it_should_parse_migrations_dir_with_one_relative_dir(self):
@@ -70,9 +71,9 @@ class ConfigTest(unittest.TestCase):
 
     def test_it_should_accept_non_empty_stringand_false_as_default_value(self):
         _dict = {"some_key": "some_value"}
-        self.assertEqual(None, Config._get(_dict,"ANOTHER_KEY", None))
-        self.assertEqual("", Config._get(_dict,"ANOTHER_KEY", ""))
-        self.assertEqual(False, Config._get(_dict,"ANOTHER_KEY", False))
+        self.assertEqual(None, Config._get(_dict, "ANOTHER_KEY", None))
+        self.assertEqual("", Config._get(_dict, "ANOTHER_KEY", ""))
+        self.assertEqual(False, Config._get(_dict, "ANOTHER_KEY", False))
 
     def test_it_should_save_config_values(self):
         config = Config()
@@ -162,6 +163,7 @@ class ConfigTest(unittest.TestCase):
         config.remove("SOME_KEY")
         self.assertRaises(Exception, config.get, "sOMe_KEY")
 
+
 class FileConfigTest(unittest.TestCase):
 
     def setUp(self):
@@ -175,6 +177,8 @@ UTC_TIMESTAMP = True
 DATABASE_ANY_CUSTOM_VARIABLE = 'Some Value'
 SOME_ENV_DATABASE_ANY_CUSTOM_VARIABLE = 'Other Value'
 DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
+RUN_AFTER = './some_dummy_action.py'
+RUN_AFTER_PARAMS = {'key': 'value'}
 '''
         create_file('sample.conf', "%s\nDATABASE_MIGRATIONS_DIR = 'example'" % config_file)
         create_file('sample2.conf', "%s" % config_file)
@@ -197,6 +201,8 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
         self.assertEquals(config.get('database_name'), 'migration_example')
         self.assertEquals(config.get("database_migrations_dir"), [os.path.abspath('example')])
         self.assertEquals(config.get('utc_timestamp'), True)
+        self.assertEquals(config.get('run_after'), './some_dummy_action.py')
+        self.assertEquals(config.get('run_after_params')['key'], 'value')
 
     def test_it_should_use_configuration_by_environment(self):
         config_path = os.path.abspath('sample.conf')

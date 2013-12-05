@@ -5,7 +5,7 @@ Simple Virtuoso migrate "quick" documentation
 Quick start
 ---
 
-simple-virtuoso-migrate is damn simple. The best way to understand how it works is installing and using it.
+simple-virtuoso-migrate is very simple. The best way to understand how it works is installing and using it.
 
 You can install it by :
 
@@ -22,7 +22,7 @@ $ virtuoso-migrate --help
 Understanding how it works
 ---
 
-virtuoso-migrate is a ontology versioning and migration tool inspired on simple-db-migrate.
+virtuoso-migrate is an ontology versioning and migration tool inspired on simple-db-migrate.
 
 This tool helps you to manage and track your ontology changes.
 
@@ -88,6 +88,8 @@ You can create a configuration file and inform it at command line using "-c <fil
     VIRTUOSO_DIRS_ALLOWED     This option exists to be used with "-a" option. It must be the same directory
                               configured for the Virtuoso Server in the parameter DirsAlowed of virtuoso.ini.
     MIGRATION_GRAPH           Name of the graph that keeps migration's information.
+    RUN_AFTER                 Path of a python script that is invoked after the migration is executed.
+    RUN_AFTER_PARAMS          The value of this property can be retrieved as-it-is from the run_after script.
 
 
 Querying your migrations
