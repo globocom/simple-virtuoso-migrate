@@ -274,18 +274,16 @@ ORDER BY desc(?data) LIMIT 1
                 e._str = e._str.decode('utf-8')
                 raise MigrationException("Error parsing graph %s" % unicode(e))
 
-            forward_migration, backward_migration = (
+            forward_insert, backward_delete = (
                             self._generate_migration_sparql_commands(
                                                         destination_graph,
                                                         current_graph))
-            query_up += forward_migration
-            query_down += backward_migration
-            forward_migration, backward_migration = (
+            backward_insert, forward_delete = (
                             self._generate_migration_sparql_commands(
                                                         current_graph,
                                                         destination_graph))
-            query_down += forward_migration
-            query_up += backward_migration
+            query_up = forward_delete + forward_insert
+            query_down = backward_delete + backward_insert
 
         # Registry schema changes on migration_graph
         now = datetime.datetime.now()

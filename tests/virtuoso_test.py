@@ -289,26 +289,23 @@ class VirtuosoTest(BaseTest):
         self.assertEqual('\nSPARQL INSERT INTO <http://example.com/> { [] owl:versionInfo "None"; <http://example.com/endpoint> "endpoint"; <http://example.com/usuario> "user"; <http://example.com/ambiente> "localhost"; <http://example.com/produto> "test"; <http://example.com/commited> "%s"^^xsd:dateTime; <http://example.com/origen> "None"; <http://example.com/inserted> "data.ttl".};' % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), query_up)
         self.assertEqual('\nSPARQL DELETE FROM <http://example.com/> {?s ?p ?o} WHERE {?s owl:versionInfo "None"; <http://example.com/endpoint> "endpoint"; <http://example.com/usuario> "user"; <http://example.com/ambiente> "localhost"; <http://example.com/produto> "test"; <http://example.com/commited> "%s"^^xsd:dateTime; <http://example.com/origen> "None"; <http://example.com/inserted> "data.ttl"; ?p ?o.};'  % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), query_down)
 
-    # def test_generate_migration_sparql_commands_dealing_with_blank_nodes(self):
-    #     self.stdout_mock.stop()
+    def test_it_should_get_sparql_statments_from_given_ontology_when_breaking_a_blank_node_in_two(self):
+        query_up, query_down = Virtuoso(self.config).get_sparql(current_ontology=self.structure_02_ttl_content,
+                                                                destination_ontology=self.structure_03_ttl_content)
 
-    #     from rdflib.graph import ConjunctiveGraph
+        query_up_lines = [line.strip() for line in query_up.split("\n")[1:]]
 
-    #     ttl_before = self.structure_02_ttl_content
-    #     graph_before = ConjunctiveGraph()
-    #     graph_before.parse(data=ttl_before, format='turtle')
+        self.assertTrue(len(query_up_lines),3)
+        self.assertTrue(query_up_lines[0].startswith("SPARQL DELETE FROM"))
+        self.assertTrue(query_up_lines[1].startswith("SPARQL INSERT INTO"))
+        self.assertTrue(query_up_lines[2].startswith("SPARQL INSERT INTO"))
 
-    #     ttl_after = self.structure_03_ttl_content
-    #     graph_after = ConjunctiveGraph()
-    #     graph_after.parse(data=ttl_after, format='turtle')
+        query_down_lines = [line.strip() for line in query_down.split("\n")[1:]]
 
-    #     virtuoso_ = Virtuoso(self.config)
-        
-    #     query_up, query_down = virtuoso_._generate_migration_sparql_commands(origin_store=graph_before, destination_store=graph_after)
-    #     query_up2, query_down2 = virtuoso_._generate_migration_sparql_commands(origin_store=graph_after, destination_store=graph_before)
-    #     import pdb; pdb.set_trace()
-    #     query_down
-
+        self.assertTrue(len(query_down_lines),3)
+        self.assertTrue(query_down_lines[0].startswith("SPARQL DELETE FROM"))
+        self.assertTrue(query_down_lines[1].startswith("SPARQL DELETE FROM"))
+        self.assertTrue(query_down_lines[2].startswith("SPARQL INSERT INTO"))
 
     def test_generate_migration_sparql_commands_when_only_a_triple_of_an_existing_blank_node_is_deleted(self):
         ttl_before = self.structure_02_ttl_content
@@ -320,7 +317,7 @@ class VirtuosoTest(BaseTest):
         graph_after.parse(data=ttl_after, format='turtle')
 
         virtuoso_ = Virtuoso(self.config)
-        
+
         query_up, query_down = virtuoso_._generate_migration_sparql_commands(origin_store=graph_after, destination_store=graph_before)
         expected_query_up = u'\nSPARQL INSERT INTO <test> { <http://example.com/role> <http://www.w3.org/2000/01/rdf-schema#subClassOf> [<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction> ; <http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger> ; <http://www.w3.org/2002/07/owl#onClass> <http://example.com/RoleOnSoapOpera> ; <http://www.w3.org/2002/07/owl#onProperty> <http://example.com/play_a_role> ; ] };'
         expected_query_down  = u'\nSPARQL DELETE FROM <test> { <http://example.com/role> <http://www.w3.org/2000/01/rdf-schema#subClassOf>  ?s. ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction> ; <http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger> ; <http://www.w3.org/2002/07/owl#onClass> <http://example.com/RoleOnSoapOpera> ; <http://www.w3.org/2002/07/owl#onProperty> <http://example.com/play_a_role>  } WHERE { <http://example.com/role> <http://www.w3.org/2000/01/rdf-schema#subClassOf>  ?s. ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction> ; <http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger> ; <http://www.w3.org/2002/07/owl#onClass> <http://example.com/RoleOnSoapOpera> ; <http://www.w3.org/2002/07/owl#onProperty> <http://example.com/play_a_role>  };'
