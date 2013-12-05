@@ -24,7 +24,7 @@ class Main(object):
 
     @staticmethod
     def _valid_version():
-        return sys.version_info[0] == 2  and sys.version_info[1] >= 7
+        return sys.version_info[0] == 2 and sys.version_info[1] >= 7
 
     def execute(self):
         """ evaluate what action to take from command line options """
@@ -34,16 +34,17 @@ class Main(object):
                             log_level_limit=1)
 
         if self.config.get("load_ttl", None) is not None:
-            self._load_triples()
+            operation_result = self._load_triples()
+
         else:
-            self._migrate()
+            operation_result = self._migrate()
 
         run_after_script = self.config.get('RUN_AFTER', None)
         if run_after_script:
             self._execution_log("\nExecuting run_after script %s.\n" % run_after_script,
                                 "PINK",
                                 log_level_limit=1)
-            self._run_after(run_after_script)
+            self._run_after(run_after_script, operation_result)
 
         self._execution_log("\nDone.\n", "PINK", log_level_limit=1)
 
@@ -67,11 +68,18 @@ class Main(object):
                             "GREEN",
                             log_level_limit=1)
 
+        out_list = []
+        ok_list = []
+        err_list = []
+        operation_result = {
+            'operation': 'load',
+            'ok_list': ok_list,
+            'out_list': out_list,
+            'err_list': err_list
+        }
+
         if not self.config.get("show_sparql_only", False):
             response_dict = self.virtuoso.upload_ttls_to_virtuoso(files)
-            out_list = []
-            ok_list = []
-            err_list = []
             for filename, (out, err) in response_dict.items():
                 if err:
                     err_list.append("File %s with err %s" % (filename, err))
@@ -98,8 +106,14 @@ class Main(object):
                                          current_version,
                                          current_version,
                                          out_list)
+                operation_result['current_version'] = current_version
+                operation_result['sparql_up'] = sparql_up
+                operation_result['sparql_down'] = sparql_down
+
             else:
                 self._execution_log("\n".join(out_list), log_level_limit=1)
+
+        return operation_result
 
     def _migrate(self):
         """ Execute migrations based on git tags """
@@ -157,6 +171,12 @@ class Main(object):
                                  sparql_down,
                                  current_version,
                                  destination_version)
+
+        return {'operation': 'migration',
+                'sparql_up': sparql_up,
+                'sparql_down': sparql_down,
+                'current_version': current_version,
+                'destination_version': destination_version}
 
     def _get_destination_version(self):
         """ get destination version """
@@ -221,13 +241,13 @@ class Main(object):
             CLI.msg(msg, color)
         self.log.debug(msg)
 
-    def _run_after(self, script_name):
+    def _run_after(self, script_name, operation_result):
         module = open(script_name, "r").read()
         sandbox = {}
         exec(module, sandbox)
         try:
             run_after_func = sandbox['run_after']
-            run_after_func(self)
+            run_after_func(self, operation_result)
         except KeyError:
             self._execution_log("\nRun after script %s does not have run_after() function .\n" % script_name,
                                 "PINK", log_level_limit=1)
