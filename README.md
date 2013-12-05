@@ -88,6 +88,8 @@ You can create a configuration file and inform it at command line using "-c <fil
     VIRTUOSO_DIRS_ALLOWED     This option exists to be used with "-a" option. It must be the same directory
                               configured for the Virtuoso Server in the parameter DirsAlowed of virtuoso.ini.
     MIGRATION_GRAPH           Name of the graph that keeps migration's information.
+    RUN_AFTER                 Path of a python script that is invoked after the migration is executed.
+    RUN_AFTER_PARAMS          The value of this property can be retrieved as-it-is from the run_after script.
 
 
 Querying your migrations

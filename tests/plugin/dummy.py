@@ -4,10 +4,12 @@
 # that is used to notify some server to purge its cache
 
 def run_after(main):
+    run_after_params = main.config.get('run_after_params')
+    brainiak_url = run_after_params['brainiak_url']
+
     import urllib2
     opener = urllib2.build_opener(urllib2.HTTPHandler)
-    purge_url = 'http://localhost:5100'
-    request = urllib2.Request(purge_url)
+    request = urllib2.Request(brainiak_url)
     request.add_header('X-Cache-Recursive', '1')
     request.get_method = lambda: 'PURGE'
     url = opener.open(request)
