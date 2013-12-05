@@ -194,7 +194,7 @@ ORDER BY desc(?data) LIMIT 1
             query_get_blank_node = """\
             prefix owl: <http://www.w3.org/2002/07/owl#>
             prefix xsd: <http://www.w3.org/2001/XMLSchema#>
-            SELECT ?s WHERE
+            SELECT DISTINCT ?s ?p ?o WHERE
             {
                 """
             if isinstance(subject, rdflib.term.BNode) and (
@@ -202,7 +202,7 @@ ORDER BY desc(?data) LIMIT 1
                 checked.add(subject)
 
                 blank_node_as_an_object = ""
-                triples_with_blank_node_as_object = diff.subject_predicates(subject)
+                triples_with_blank_node_as_object = sorted(diff.subject_predicates(subject))
                 for triple_subject, triple_object in triples_with_blank_node_as_object:
                     query_get_blank_node = query_get_blank_node + "%s %s ?s . " % (triple_subject.n3(),
                                                          triple_object.n3())
@@ -211,18 +211,21 @@ ORDER BY desc(?data) LIMIT 1
                                                               triple_object.n3())
 
                 blank_node_as_a_subject = ""
-                triples_with_blank_node_as_subject = diff.predicate_objects(subject)
+                triples_with_blank_node_as_subject = sorted(diff.predicate_objects(subject))
                 for pred_obj in triples_with_blank_node_as_subject:
                     query_get_blank_node = query_get_blank_node + "?s %s %s . " % (pred_obj[0].n3(),
                                                          pred_obj[1].n3())
                     blank_node_as_a_subject = blank_node_as_a_subject + "%s %s ; " % (
                                                             pred_obj[0].n3(),
                                                             pred_obj[1].n3())
-                query_get_blank_node = query_get_blank_node + "}"
+                query_get_blank_node = query_get_blank_node + " ?s ?p ?o .} "
 
-                qres_1 = destination_store.query(query_get_blank_node)
+                blank_node_existing_triples = len(destination_store.query(query_get_blank_node))
+                blank_node_existed_triples = len(origin_store.query(query_get_blank_node))
 
-                if len(qres_1) <= 0:
+                blank_node_triples_changed = blank_node_existing_triples != blank_node_existed_triples
+
+                if not blank_node_existing_triples or blank_node_triples_changed:
                     forward_migration = forward_migration + \
                         u"\nSPARQL INSERT INTO <%s> { %s[%s] };" % (
                                                             self.__virtuoso_graph,

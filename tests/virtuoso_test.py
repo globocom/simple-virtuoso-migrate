@@ -3,7 +3,10 @@ import unittest
 import datetime
 import os
 import re
+
 from mock import patch, Mock, call, MagicMock
+from rdflib.graph import ConjunctiveGraph
+
 from simple_virtuoso_migrate.config import Config
 from simple_virtuoso_migrate.main import Virtuoso
 from simple_virtuoso_migrate.core.exceptions import MigrationException
@@ -72,9 +75,60 @@ class VirtuosoTest(BaseTest):
                     owl:onClass :RoleOnSoapOpera ;
                     owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
                     owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger
-                ]."""
+                ] .
+"""
 
         create_file("structure_02.ttl", self.structure_02_ttl_content)
+
+        self.structure_03_ttl_content = """
+@prefix : <http://example.com/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+:Actor rdf:type owl:Class .
+:SoapOpera rdf:type owl:Class .
+:RoleOnSoapOpera rdf:type owl:Class .
+
+:role rdf:type owl:Class ;
+                rdfs:subClassOf [
+                    rdf:type owl:Restriction ;
+                    owl:onProperty :play_a_role ;
+                    owl:onClass :RoleOnSoapOpera ;
+                    owl:minQualifiedCardinality "1111"^^xsd:nonNegativeInteger 
+                ] ,
+                [
+                    rdf:type owl:Restriction ;
+                    owl:onProperty :play_a_role ;
+                    owl:onClass :RoleOnSoapOpera ;
+                    owl:maxQualifiedCardinality "3333"^^xsd:nonNegativeInteger
+                ] .
+"""
+
+        create_file("structure_03.ttl", self.structure_03_ttl_content)
+
+        self.structure_04_ttl_content = """
+@prefix : <http://example.com/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+:Actor rdf:type owl:Class .
+:SoapOpera rdf:type owl:Class .
+:RoleOnSoapOpera rdf:type owl:Class .
+
+:role rdf:type owl:Class ;
+                rdfs:subClassOf [
+                    rdf:type owl:Restriction ;
+                    owl:onProperty :play_a_role ;
+                    owl:onClass :RoleOnSoapOpera ;
+                    owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger
+                ] .
+"""
+
+        create_file("structure_04.ttl", self.structure_02_ttl_content)
 
     def tearDown(self):
         super(VirtuosoTest, self).tearDown()
@@ -234,6 +288,44 @@ class VirtuosoTest(BaseTest):
 
         self.assertEqual('\nSPARQL INSERT INTO <http://example.com/> { [] owl:versionInfo "None"; <http://example.com/endpoint> "endpoint"; <http://example.com/usuario> "user"; <http://example.com/ambiente> "localhost"; <http://example.com/produto> "test"; <http://example.com/commited> "%s"^^xsd:dateTime; <http://example.com/origen> "None"; <http://example.com/inserted> "data.ttl".};' % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), query_up)
         self.assertEqual('\nSPARQL DELETE FROM <http://example.com/> {?s ?p ?o} WHERE {?s owl:versionInfo "None"; <http://example.com/endpoint> "endpoint"; <http://example.com/usuario> "user"; <http://example.com/ambiente> "localhost"; <http://example.com/produto> "test"; <http://example.com/commited> "%s"^^xsd:dateTime; <http://example.com/origen> "None"; <http://example.com/inserted> "data.ttl"; ?p ?o.};'  % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), query_down)
+
+    # def test_generate_migration_sparql_commands_dealing_with_blank_nodes(self):
+    #     self.stdout_mock.stop()
+
+    #     from rdflib.graph import ConjunctiveGraph
+
+    #     ttl_before = self.structure_02_ttl_content
+    #     graph_before = ConjunctiveGraph()
+    #     graph_before.parse(data=ttl_before, format='turtle')
+
+    #     ttl_after = self.structure_03_ttl_content
+    #     graph_after = ConjunctiveGraph()
+    #     graph_after.parse(data=ttl_after, format='turtle')
+
+    #     virtuoso_ = Virtuoso(self.config)
+        
+    #     query_up, query_down = virtuoso_._generate_migration_sparql_commands(origin_store=graph_before, destination_store=graph_after)
+    #     query_up2, query_down2 = virtuoso_._generate_migration_sparql_commands(origin_store=graph_after, destination_store=graph_before)
+    #     import pdb; pdb.set_trace()
+    #     query_down
+
+
+    def test_generate_migration_sparql_commands_when_only_a_triple_of_an_existing_blank_node_is_deleted(self):
+        ttl_before = self.structure_02_ttl_content
+        graph_before = ConjunctiveGraph()
+        graph_before.parse(data=ttl_before, format='turtle')
+
+        ttl_after = self.structure_04_ttl_content
+        graph_after = ConjunctiveGraph()
+        graph_after.parse(data=ttl_after, format='turtle')
+
+        virtuoso_ = Virtuoso(self.config)
+        
+        query_up, query_down = virtuoso_._generate_migration_sparql_commands(origin_store=graph_after, destination_store=graph_before)
+        expected_query_up = u'\nSPARQL INSERT INTO <test> { <http://example.com/role> <http://www.w3.org/2000/01/rdf-schema#subClassOf> [<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction> ; <http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger> ; <http://www.w3.org/2002/07/owl#onClass> <http://example.com/RoleOnSoapOpera> ; <http://www.w3.org/2002/07/owl#onProperty> <http://example.com/play_a_role> ; ] };'
+        expected_query_down  = u'\nSPARQL DELETE FROM <test> { <http://example.com/role> <http://www.w3.org/2000/01/rdf-schema#subClassOf>  ?s. ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction> ; <http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger> ; <http://www.w3.org/2002/07/owl#onClass> <http://example.com/RoleOnSoapOpera> ; <http://www.w3.org/2002/07/owl#onProperty> <http://example.com/play_a_role>  } WHERE { <http://example.com/role> <http://www.w3.org/2000/01/rdf-schema#subClassOf>  ?s. ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction> ; <http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger> ; <http://www.w3.org/2002/07/owl#onClass> <http://example.com/RoleOnSoapOpera> ; <http://www.w3.org/2002/07/owl#onProperty> <http://example.com/play_a_role>  };'
+        self.assertEqual(query_up, expected_query_up)
+        self.assertEqual(query_down, expected_query_down)
 
     def test_it_should_get_sparql_statments_when_forward_migration(self):
 
