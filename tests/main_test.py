@@ -155,7 +155,7 @@ class MainTest(BaseTest):
     @patch('simple_virtuoso_migrate.main.Main._load_triples')
     @patch('simple_virtuoso_migrate.main.Main._valid_version')
     def test_should_exec_and_call_run_after_script(self, valid_version_mock, load_triples_mock, execution_log_mock):
-        self.initial_config.update({'load_ttl':'', 'run_after': 'tests/plugin/validate_run_after.py'})
+        self.initial_config.update({'load_ttl':'', 'run_after': 'tests/samples/validate_run_after.py'})
         main = Main(Config(self.initial_config))
         main.execute()
         self.assertEqual(valid_version_mock.call_count, 2)
@@ -163,10 +163,10 @@ class MainTest(BaseTest):
     @patch('simple_virtuoso_migrate.main.Main._execution_log')
     @patch('simple_virtuoso_migrate.main.Main._load_triples')
     def test_should_exec_and_fail_with_invalid_after_script(self, load_triples_mock, execution_log_mock):
-        self.initial_config.update({'load_ttl':'', 'run_after': 'tests/plugin/invalid_run_after.py'})
+        self.initial_config.update({'load_ttl':'', 'run_after': 'tests/samples/invalid_run_after.py'})
         main = Main(Config(self.initial_config))
         main.execute()
-        execution_log_mock.mock_calls[-2].called_with('\nRun after script tests/plugin/invalid_run_after.py does not have run_after() function .\n', 'PINK', 1)
+        execution_log_mock.mock_calls[-2].called_with('\nRun after script tests/samples/invalid_run_after.py does not have run_after() function .\n', 'PINK', 1)
 
     @patch('simple_virtuoso_migrate.main.Main._execution_log')
     @patch('simple_virtuoso_migrate.main.Virtuoso.execute_change')
