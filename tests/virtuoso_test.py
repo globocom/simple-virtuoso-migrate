@@ -307,6 +307,22 @@ class VirtuosoTest(BaseTest):
         self.assertTrue(query_down_lines[1].startswith("SPARQL DELETE FROM"))
         self.assertTrue(query_down_lines[2].startswith("SPARQL INSERT INTO"))
 
+    def test_get_sparql_merges_right_two_blank_nodes_into_one(self):
+        query_up, query_down = Virtuoso(self.config).get_sparql(current_ontology=self.structure_03_ttl_content,
+                                                                destination_ontology=self.structure_02_ttl_content)
+
+        query_up_lines = [line.strip() for line in query_up.split("\n")[1:]]
+        self.assertTrue(len(query_up_lines),3)
+        self.assertTrue(query_up_lines[0].startswith("SPARQL DELETE FROM"))
+        self.assertTrue(query_up_lines[1].startswith("SPARQL DELETE FROM"))
+        self.assertTrue(query_up_lines[2].startswith("SPARQL INSERT INTO"))
+
+        query_down_lines = [line.strip() for line in query_down.split("\n")[1:]]
+        self.assertTrue(len(query_down_lines),3)
+        self.assertTrue(query_down_lines[0].startswith("SPARQL DELETE FROM"))
+        self.assertTrue(query_down_lines[1].startswith("SPARQL INSERT INTO"))
+        self.assertTrue(query_down_lines[2].startswith("SPARQL INSERT INTO"))
+
     def test_generate_migration_sparql_commands_when_only_a_triple_of_an_existing_blank_node_is_deleted(self):
         ttl_before = self.structure_02_ttl_content
         graph_before = ConjunctiveGraph()
