@@ -188,36 +188,35 @@ ORDER BY desc(?data) LIMIT 1
         forward_migration = ""
         backward_migration = ""
 
-        for triples in diff:
-            subject, predicate, object_ = triples
+        for subject, predicate, object_ in diff:
 
-            query_get_blank_node = """\
-            prefix owl: <http://www.w3.org/2002/07/owl#>
-            prefix xsd: <http://www.w3.org/2001/XMLSchema#>
-            SELECT DISTINCT ?s ?p ?o WHERE
-            {
-                """
-            if isinstance(subject, rdflib.term.BNode) and (
+           if isinstance(subject, rdflib.term.BNode) and (
                                                     not subject in checked):
                 checked.add(subject)
 
+                query_get_blank_node = """\
+                prefix owl: <http://www.w3.org/2002/07/owl#>
+                prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+                SELECT DISTINCT ?s ?p ?o WHERE
+                {"""
+
                 blank_node_as_an_object = ""
                 triples_with_blank_node_as_object = sorted(diff.subject_predicates(subject))
-                for triple_subject, triple_object in triples_with_blank_node_as_object:
+                for triple_subject, triple_predicate in triples_with_blank_node_as_object:
                     query_get_blank_node = query_get_blank_node + "%s %s ?s . " % (triple_subject.n3(),
-                                                         triple_object.n3())
+                                                         triple_predicate.n3())
                     blank_node_as_an_object = blank_node_as_an_object + "%s %s " % (
                                                               triple_subject.n3(),
-                                                              triple_object.n3())
+                                                              triple_predicate.n3())
 
                 blank_node_as_a_subject = ""
                 triples_with_blank_node_as_subject = sorted(diff.predicate_objects(subject))
-                for pred_obj in triples_with_blank_node_as_subject:
-                    query_get_blank_node = query_get_blank_node + "?s %s %s . " % (pred_obj[0].n3(),
-                                                         pred_obj[1].n3())
+                for triple_predicate, triple_object in triples_with_blank_node_as_subject:
+                    query_get_blank_node = query_get_blank_node + "?s %s %s . " % (
+                        triple_predicate.n3(), triple_object.n3())
                     blank_node_as_a_subject = blank_node_as_a_subject + "%s %s ; " % (
-                                                            pred_obj[0].n3(),
-                                                            pred_obj[1].n3())
+                        triple_predicate.n3(), Utils.get_normalized_n3(triple_object))
+
                 query_get_blank_node = query_get_blank_node + " ?s ?p ?o .} "
 
                 blank_node_existing_triples = len(destination_store.query(query_get_blank_node))
@@ -240,8 +239,8 @@ ORDER BY desc(?data) LIMIT 1
                                            blank_node_as_an_object,
                                            blank_node_as_a_subject)
 
-            if isinstance(subject, rdflib.term.URIRef) and \
-                        not isinstance(object_, rdflib.term.BNode):
+           if isinstance(subject, rdflib.term.URIRef) and \
+                    not isinstance(object_, rdflib.term.BNode):
                 forward_migration = forward_migration + \
                                 u"\nSPARQL INSERT INTO <%s> {%s %s %s . };"\
                                 % (self.__virtuoso_graph, subject.n3(), predicate.n3(),
@@ -250,9 +249,10 @@ ORDER BY desc(?data) LIMIT 1
                     u"\nSPARQL DELETE FROM <%s> {%s %s %s . };" % (self.__virtuoso_graph,
                                                             subject.n3(),
                                                             predicate.n3(),
-                                                            object_.n3())
+                                                            Utils.get_normalized_n3(object_))
 
         return forward_migration, backward_migration
+
 
     def get_sparql(self, current_ontology=None, destination_ontology=None,
                          current_version=None, destination_version=None,

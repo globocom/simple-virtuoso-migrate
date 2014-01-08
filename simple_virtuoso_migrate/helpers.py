@@ -3,6 +3,10 @@ import sys
 import tempfile
 import codecs
 
+from rdflib import Literal, URIRef
+
+XSD_NON_NEGATIVE_INTEGER = URIRef("http://www.w3.org/2001/XMLSchema#nonNegativeInteger")
+XSD_BOOLEAN = URIRef("http://www.w3.org/2001/XMLSchema#boolean")
 
 class Utils(object):
 
@@ -61,3 +65,12 @@ class Utils(object):
                 sys.path.remove(path)
 
         return local_dict
+
+    @staticmethod
+    def get_normalized_n3(object_value):
+        # Virtuoso converts "0"^^xsd:nonNegativeInteger to "0"^^xsd:integer
+        # Virtuoso also converts boolean to "0"^^xsd:integer
+        if type(object_value) == Literal and \
+           (object_value.datatype == XSD_BOOLEAN or object_value.datatype == XSD_NON_NEGATIVE_INTEGER):
+            return Literal(int(object_value.toPython())).n3()
+        return object_value.n3()

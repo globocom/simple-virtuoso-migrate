@@ -6,6 +6,9 @@ from mock import patch
 from tests import create_file, delete_files
 from simple_virtuoso_migrate.helpers import Utils
 
+from rdflib import Literal
+
+
 class UtilsTest(unittest.TestCase):
 
     def setUp(self):
@@ -105,3 +108,21 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
             self.fail("it should not get here")
         except Exception, e:
             self.assertEqual('could not create temporary file for content_reference -> (some error)', str(e))
+
+    def test_normalize_non_negative_integer(self):
+        literal = Literal('1', datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger")
+        result = Utils.get_normalized_n3(literal)
+        expected = '"1"^^<http://www.w3.org/2001/XMLSchema#integer>'
+        self.assertEqual(result, expected)
+
+    def test_normalize_boolean(self):
+        literal = Literal('true', datatype="http://www.w3.org/2001/XMLSchema#boolean")
+        result = Utils.get_normalized_n3(literal)
+        expected = '"1"^^<http://www.w3.org/2001/XMLSchema#integer>'
+        self.assertEqual(result, expected)
+
+    def test_normalize_xsd_string_datatype_remains_untouched(self):
+        literal = Literal('test', datatype="http://www.w3.org/2001/XMLSchema#string")
+        result = Utils.get_normalized_n3(literal)
+        expected = '"test"^^<http://www.w3.org/2001/XMLSchema#string>'
+        self.assertEqual(result, expected)
