@@ -319,8 +319,8 @@ class VirtuosoTest(BaseTest):
         virtuoso_ = Virtuoso(self.config)
 
         query_up, query_down = virtuoso_._generate_migration_sparql_commands(origin_store=graph_after, destination_store=graph_before)
-        expected_query_up = u'\nSPARQL INSERT INTO <test> { <http://example.com/role> <http://www.w3.org/2000/01/rdf-schema#subClassOf> [<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction> ; <http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger> ; <http://www.w3.org/2002/07/owl#onClass> <http://example.com/RoleOnSoapOpera> ; <http://www.w3.org/2002/07/owl#onProperty> <http://example.com/play_a_role> ; ] };'
-        expected_query_down  = u'\nSPARQL DELETE FROM <test> { <http://example.com/role> <http://www.w3.org/2000/01/rdf-schema#subClassOf>  ?s. ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction> ; <http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger> ; <http://www.w3.org/2002/07/owl#onClass> <http://example.com/RoleOnSoapOpera> ; <http://www.w3.org/2002/07/owl#onProperty> <http://example.com/play_a_role>  } WHERE { <http://example.com/role> <http://www.w3.org/2000/01/rdf-schema#subClassOf>  ?s. ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction> ; <http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger> ; <http://www.w3.org/2002/07/owl#onClass> <http://example.com/RoleOnSoapOpera> ; <http://www.w3.org/2002/07/owl#onProperty> <http://example.com/play_a_role>  };'
+        expected_query_up = u'\nSPARQL INSERT INTO <test> { <http://example.com/role> <http://www.w3.org/2000/01/rdf-schema#subClassOf> [<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction> ; <http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#integer> ; <http://www.w3.org/2002/07/owl#onClass> <http://example.com/RoleOnSoapOpera> ; <http://www.w3.org/2002/07/owl#onProperty> <http://example.com/play_a_role> ; ] };'
+        expected_query_down  = u'\nSPARQL DELETE FROM <test> { <http://example.com/role> <http://www.w3.org/2000/01/rdf-schema#subClassOf>  ?s. ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction> ; <http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#integer> ; <http://www.w3.org/2002/07/owl#onClass> <http://example.com/RoleOnSoapOpera> ; <http://www.w3.org/2002/07/owl#onProperty> <http://example.com/play_a_role>  } WHERE { <http://example.com/role> <http://www.w3.org/2000/01/rdf-schema#subClassOf>  ?s. ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction> ; <http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#integer> ; <http://www.w3.org/2002/07/owl#onClass> <http://example.com/RoleOnSoapOpera> ; <http://www.w3.org/2002/07/owl#onProperty> <http://example.com/play_a_role>  };'
         self.assertEqual(query_up, expected_query_up)
         self.assertEqual(query_down, expected_query_down)
 
@@ -348,8 +348,8 @@ class VirtuosoTest(BaseTest):
         matchObj = re.search(r"SPARQL INSERT INTO <test> { <http://example.com/role> <http://www.w3.org/2000/01/rdf-schema#subClassOf> \[(.*)\] };", query_up,  re.MULTILINE)
         sub_classes = [c.strip(' \t\n\r') for c in re.split(r" ; | \?s\. \?s ", matchObj.group(1))]
         [self.assertTrue(c in sub_classes) for c in [
-            '<http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger>',
-            '<http://www.w3.org/2002/07/owl#maxQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger>',
+            '<http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#integer>',
+            '<http://www.w3.org/2002/07/owl#maxQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#integer>',
             '<http://www.w3.org/2002/07/owl#onClass> <http://example.com/RoleOnSoapOpera>',
             '<http://www.w3.org/2002/07/owl#onProperty> <http://example.com/play_a_role>',
             '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction>'
@@ -365,8 +365,8 @@ class VirtuosoTest(BaseTest):
         sub_classes_02 = [c.strip(' \t\n\r') for c in re.split(r" ; | \?s\. \?s ", matchObj.group(2))]
         [self.assertTrue((c in sub_classes_01) and (c in sub_classes_02)) for c in [
             '<http://example.com/role> <http://www.w3.org/2000/01/rdf-schema#subClassOf>',
-            '<http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger>',
-            '<http://www.w3.org/2002/07/owl#maxQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger>',
+            '<http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#integer>',
+            '<http://www.w3.org/2002/07/owl#maxQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#integer>',
             '<http://www.w3.org/2002/07/owl#onClass> <http://example.com/RoleOnSoapOpera>',
             '<http://www.w3.org/2002/07/owl#onProperty> <http://example.com/play_a_role>',
             '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction>'
@@ -402,8 +402,8 @@ class VirtuosoTest(BaseTest):
         sub_classes_02 = [c.strip(' \t\n\r') for c in re.split(r" ; | \?s\. \?s ", matchObj.group(2))]
         [self.assertTrue((c in sub_classes_01) and (c in sub_classes_02)) for c in [
             '<http://example.com/role> <http://www.w3.org/2000/01/rdf-schema#subClassOf>',
-            '<http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger>',
-            '<http://www.w3.org/2002/07/owl#maxQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger>',
+            '<http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#integer>',
+            '<http://www.w3.org/2002/07/owl#maxQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#integer>',
             '<http://www.w3.org/2002/07/owl#onClass> <http://example.com/RoleOnSoapOpera>',
             '<http://www.w3.org/2002/07/owl#onProperty> <http://example.com/play_a_role>',
             '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction>'
@@ -418,8 +418,8 @@ class VirtuosoTest(BaseTest):
         matchObj = re.search(r"SPARQL INSERT INTO <test> { <http://example.com/role> <http://www.w3.org/2000/01/rdf-schema#subClassOf> \[(.*)\] };", query_down,  re.MULTILINE)
         sub_classes = [c.strip(' \t\n\r') for c in re.split(r" ; | \?s\. \?s ", matchObj.group(1))]
         [self.assertTrue(c in sub_classes) for c in [
-            '<http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger>',
-            '<http://www.w3.org/2002/07/owl#maxQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger>',
+            '<http://www.w3.org/2002/07/owl#minQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#integer>',
+            '<http://www.w3.org/2002/07/owl#maxQualifiedCardinality> "1"^^<http://www.w3.org/2001/XMLSchema#integer>',
             '<http://www.w3.org/2002/07/owl#onClass> <http://example.com/RoleOnSoapOpera>',
             '<http://www.w3.org/2002/07/owl#onProperty> <http://example.com/play_a_role>',
             '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Restriction>'
